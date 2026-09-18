@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#090b12">
+  <title>NightStock — Inventario</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{
+      --bg:#070910;--panel:#0d111c;--panel2:#111827;--line:#20293a;
+      --text:#f5f7fb;--muted:#8f9bb0;--accent:#7c5cff;--accent2:#22d3ee;
+      --danger:#ff5577;--ok:#38d39f;--shadow:0 18px 60px #0008;
+      --r:20px;
+    }
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:
+      radial-gradient(circle at 20% -10%,#2d205d55,transparent 35%),radial-gradient(circle at 100% 10%,#0c749033,transparent 30%),var(--bg);color:var(--text)}
+    body{overflow-x:hidden}.hidden{display:none!important}
+    button,input,select{font:inherit}button{cursor:pointer}
+
+    /* Onboarding: higher contrast and clearer typography */
+    .onboarding{color:var(--text)}
+    .onboarding h1,.onboarding h2,.onboarding h3{color:#ffffff}
+    .onboarding .hint,.onboarding p{color:#d4dbea}
+    .onboarding .choice{
+      color:#ffffff;
+      background:linear-gradient(145deg,#151c2c,#0d1421);
+      border:1px solid #39445a;
+      box-shadow:0 14px 40px #0006;
+    }
+    .onboarding .choice h2{color:#ffffff;font-size:22px}
+    .onboarding .choice p{color:#d9dfeb;font-size:14px;line-height:1.55}
+    .onboarding .field label{color:#f3f6fb;font-weight:800;font-size:13px}
+    .onboarding input{
+      color:#ffffff;
+      background:#090e18;
+      border:1px solid #465268;
+      font-size:15px;
+    }
+    .onboarding input::placeholder{color:#8f9bb0}
+    .onboarding input:focus{border-color:var(--accent2);box-shadow:0 0 0 3px #22d3ee18}
+    .store-access-btn{display:inline-flex;align-items:center;gap:7px}
+    .store-access-modal{max-width:760px}
+    .access-intro{color:#dbe2ee!important;line-height:1.55}
+    .access-credentials{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}
+    .access-item{background:#090e18;border:1px solid #39445a;border-radius:14px;padding:15px}
+    .access-item span{display:block;color:#aab5c7;font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:7px}
+    .access-item strong{display:block;color:#fff;font-size:20px;letter-spacing:.04em;word-break:break-all}
+    .access-share{display:grid;grid-template-columns:1fr 180px;gap:16px;align-items:center}
+    .access-qr{background:#fff;border-radius:16px;padding:10px;display:grid;place-items:center}
+    .access-qr img{display:block;width:160px;height:160px}
+    .access-link{color:#cfe8ff;font-size:12px;word-break:break-all;line-height:1.45}
+    @media(max-width:650px){
+      .access-credentials{grid-template-columns:1fr}
+      .access-share{grid-template-columns:1fr}
+      .access-qr{justify-self:center}
+      .access-qr img{width:190px;height:190px}
+    }
+
+    .app{min-height:100vh}.topbar{position:sticky;top:0;z-index:20;background:#080b12d9;backdrop-filter:blur(18px);border-bottom:1px solid #ffffff0d;padding:14px 18px}
+    .topbar-in{max-width:1200px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:14px}
+    .brand{font-weight:900;letter-spacing:-.04em;font-size:20px}.brand span{color:var(--accent2)}
+    .user-chip{border:1px solid var(--line);background:#ffffff06;border-radius:999px;padding:8px 12px;color:var(--muted);font-size:13px}
+    .layout{max-width:1200px;margin:auto;padding:22px 18px 100px}
+    .hero{display:flex;align-items:end;justify-content:space-between;gap:20px;margin:8px 0 24px}.hero h1{font-size:clamp(30px,6vw,52px);margin:0;letter-spacing:-.055em}.hero p{color:var(--muted);margin:8px 0 0}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.card{background:linear-gradient(145deg,#121827dd,#0b0f18dd);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:18px}.stat b{font-size:29px;display:block}.stat span{color:var(--muted);font-size:13px}
+    .section{margin-top:24px}.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.section-head h2{font-size:18px;margin:0}
+    .btn{border:1px solid var(--line);background:#ffffff08;color:var(--text);padding:11px 14px;border-radius:12px;font-weight:700}.btn:hover{background:#ffffff12}.btn.primary{border:0;background:linear-gradient(135deg,var(--accent),#4c7dff);box-shadow:0 10px 30px #6c5cff33}.btn.danger{color:#ff8ca3}.btn.ghost{background:transparent}
+    .search{width:100%;border:1px solid var(--line);background:#090d16;color:var(--text);padding:13px 15px;border-radius:13px;outline:none}.search:focus,input:focus,select:focus{border-color:#6f63ff;box-shadow:0 0 0 3px #6f63ff18}
+    .products{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.product{overflow:hidden;padding:0}.photo{height:190px;background:#080b12;position:relative;display:flex;align-items:center;justify-content:center}.photo img{width:100%;height:100%;object-fit:cover}.zoom{position:absolute;right:10px;top:10px;border:1px solid #fff2;background:#080b12cc;color:#fff;border-radius:10px;padding:8px}.noimg{color:#657087;font-size:12px}.pbody{padding:15px}.tag{display:inline-flex;padding:5px 8px;border-radius:999px;background:#7c5cff18;color:#b9afff;font-size:11px;font-weight:800}.product h3{margin:10px 0 3px;font-size:16px}.meta{color:var(--muted);font-size:12px}.stock{display:flex;justify-content:space-between;align-items:end;margin-top:14px}.stock strong{font-size:21px}.low{color:#ffb454}.ok{color:var(--ok)}
+    .login-wrap{min-height:100vh;display:grid;place-items:center;padding:20px}.login{width:min(440px,100%);background:#0d111ce8;border:1px solid var(--line);border-radius:26px;padding:28px;box-shadow:var(--shadow);backdrop-filter:blur(20px)}.login h1{font-size:34px;margin:0 0 8px}.login p{color:var(--muted);margin:0 0 22px}.field{display:grid;gap:7px;margin:12px 0}.field label{font-size:12px;color:var(--muted);font-weight:700}.field input,.field select{width:100%;padding:12px 13px;border-radius:12px;border:1px solid var(--line);background:#080c14;color:var(--text);outline:none}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.login .btn{width:100%;margin-top:8px}.notice{padding:10px 12px;border-radius:12px;background:#ff557714;color:#ff9ab0;font-size:13px;margin-bottom:12px}.hint{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.5}
+    .nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:#090c14ed;border-top:1px solid #ffffff10;backdrop-filter:blur(18px);padding:8px max(10px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom));display:flex;justify-content:center}.nav-in{width:min(620px,100%);display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.nav button{border:0;background:transparent;color:#778196;padding:8px 4px;border-radius:12px;font-size:11px}.nav button.active{color:#fff;background:#ffffff0c}.nav .ico{font-size:20px;display:block;margin-bottom:2px}
+    .modal{position:fixed;inset:0;z-index:100;background:#000c;display:grid;place-items:center;padding:18px}.modal-box{width:min(620px,100%);max-height:92vh;overflow:auto;background:#0d111c;border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:var(--shadow)}.modal-image{max-height:72vh;width:100%;object-fit:contain;border-radius:15px;background:#05070b}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.modal-head h3{margin:0}.close{border:0;background:#ffffff0a;color:#fff;border-radius:10px;padding:9px 12px}
+    .toast{position:fixed;right:16px;bottom:90px;z-index:150;background:#111827;border:1px solid var(--line);padding:12px 15px;border-radius:13px;box-shadow:var(--shadow);max-width:360px}.toast.bad{border-color:#ff557755}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px}.table{width:100%;border-collapse:collapse;min-width:680px}.table th,.table td{text-align:left;padding:12px;border-bottom:1px solid #ffffff08;font-size:13px}.table th{color:var(--muted);font-weight:700}.empty{padding:30px;text-align:center;color:var(--muted)}
+    @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.products{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:650px){.layout{padding:18px 12px 100px}.hero{display:block}.hero .btn{margin-top:14px;width:100%}.grid{grid-template-columns:repeat(2,1fr);gap:9px}.card{padding:14px}.products{grid-template-columns:repeat(2,1fr);gap:9px}.photo{height:145px}.pbody{padding:12px}.row{grid-template-columns:1fr}.topbar{padding:12px}.user-chip{max-width:45vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+    @media(max-width:390px){.products{grid-template-columns:1fr}.photo{height:210px}}
+    .barcode-field{margin-bottom:4px}.scan-input-row{display:flex;gap:8px;align-items:stretch}.scan-input-row input{flex:1;min-width:0}.scan-btn{white-space:nowrap}.compact-hint{margin:7px 0 0}.product-info{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #ffffff12;background:#080c14;border-radius:14px;margin:6px 0 14px}.product-info .mini-photo{width:54px;height:54px;border-radius:10px;overflow:hidden;background:#111827;flex:0 0 54px;display:grid;place-items:center;color:#667085;font-size:10px}.product-info .mini-photo img{width:100%;height:100%;object-fit:cover}.product-info strong{display:block;font-size:15px}.product-info span{display:block;color:var(--muted);font-size:12px;margin-top:3px}.scanner-modal{max-width:680px}.scanner-help{margin:5px 0 0;color:var(--muted);font-size:12px}.scanner-stage{position:relative;width:100%;aspect-ratio:4/3;max-height:65vh;background:#000;border-radius:18px;overflow:hidden}.scanner-stage video{width:100%;height:100%;object-fit:cover;display:block}.scanner-frame{position:absolute;left:10%;right:10%;top:30%;bottom:30%;border:2px solid #fff;border-radius:14px;box-shadow:0 0 0 9999px #0003}.scanner-status{margin-top:12px;text-align:center;color:#dbe2ee;font-size:13px;line-height:1.4}.scanner-status.bad{color:#ff9ab0}@media(max-width:650px){.scan-input-row{display:grid;grid-template-columns:1fr}.scan-btn{width:100%}.scanner-modal{padding:14px}.scanner-stage{aspect-ratio:3/4;max-height:70vh}.scanner-frame{left:7%;right:7%;top:37%;bottom:37%}}
+    .onboarding-wrap{min-height:100vh;display:grid;place-items:center;padding:20px}.onboarding{width:min(860px,100%);background:#0d111ce8;border:1px solid var(--line);border-radius:28px;padding:26px;box-shadow:var(--shadow);backdrop-filter:blur(20px)}.onboarding-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}.onboarding h1{font-size:clamp(28px,5vw,42px);margin:8px 0 6px;letter-spacing:-.05em}.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.choice{border:1px solid var(--line);background:linear-gradient(145deg,#121827dd,#0b0f18dd);border-radius:20px;padding:22px;text-align:left;transition:.2s}.choice:hover{transform:translateY(-2px);border-color:#6f63ff66;background:#ffffff08}.choice .bigico{font-size:32px}.choice h2{margin:12px 0 6px;font-size:20px}.choice p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}.onboarding-panel{margin-top:18px}.store-credentials{display:grid;grid-template-columns:1fr 1fr;gap:14px}.credential{background:#080c14;border:1px solid var(--line);border-radius:16px;padding:14px}.credential span{display:block;color:var(--muted);font-size:11px;margin-bottom:6px}.credential strong{font-size:18px;letter-spacing:.05em;word-break:break-all}.join-share{display:grid;grid-template-columns:1fr 190px;gap:18px;align-items:center}.qr-box{background:#fff;border-radius:16px;padding:12px;display:grid;place-items:center;min-height:190px}.qr-box img{width:166px;height:166px}.copy-row{display:flex;gap:8px}.copy-row input{flex:1;min-width:0}.store-link{font-size:12px;color:var(--muted);line-height:1.4;word-break:break-all}.onboarding-actions{display:flex;gap:10px;margin-top:16px}.onboarding-actions .btn{flex:1}.back-btn{margin-bottom:6px}@media(max-width:650px){.choice-grid,.store-credentials,.join-share{grid-template-columns:1fr}.onboarding{padding:20px}.qr-box{width:190px;margin:auto}.onboarding-actions{display:grid;grid-template-columns:1fr}.onboarding-head{align-items:flex-start}.onboarding-head .btn{white-space:nowrap}}
+  </style>
+  <script src="https://unpkg.com/@zxing/browser@0.1.5/umd/index.min.js"></script>
+</head>
+<body>
+<div id="loginView" class="login-wrap">
+  <div class="login">
+    <div class="brand">NIGHT<span>STOCK</span></div>
+    <h1>Tu inventario.</h1>
+    <p>Gestión sencilla, rápida y pensada para móvil.</p>
+    <div id="loginError" class="notice hidden"></div>
+
+    <div id="loginPanel">
+      <form id="loginForm">
+        <div class="field"><label>Email</label><input id="loginEmail" type="email" autocomplete="email" required></div>
+        <div class="field"><label>Contraseña</label><input id="loginPassword" type="password" autocomplete="current-password" required></div>
+        <button class="btn primary" type="submit">Entrar</button>
+      </form>
+      <p class="hint" style="text-align:center">¿No tienes cuenta? <button type="button" id="showRegister" class="btn ghost" style="padding:0;color:#a99cff">Crear cuenta</button></p>
+    </div>
+
+    <div id="registerPanel" class="hidden">
+      <form id="registerForm">
+        <div class="row">
+          <div class="field"><label>Nombre</label><input id="registerName" autocomplete="name" required></div>
+          <div class="field"><label>Nombre de usuario</label><input id="registerUsername" autocomplete="username" minlength="3" maxlength="24" pattern="[A-Za-z0-9._-]+" required></div>
+        </div>
+        <div class="field"><label>Email</label><input id="registerEmail" type="email" autocomplete="email" required></div>
+        <div class="row">
+          <div class="field"><label>Contraseña</label><input id="registerPassword" type="password" autocomplete="new-password" minlength="6" required></div>
+          <div class="field"><label>Repetir contraseña</label><input id="registerPassword2" type="password" autocomplete="new-password" minlength="6" required></div>
+        </div>
+        <button class="btn primary" type="submit">Crear cuenta</button>
+      </form>
+      <p class="hint" style="text-align:center">¿Ya tienes cuenta? <button type="button" id="showLogin" class="btn ghost" style="padding:0;color:#a99cff">Iniciar sesión</button></p>
+    </div>
+
+    <p class="hint">La cuenta se crea mediante Supabase Auth. Si tu proyecto exige confirmación de email, tendrás que confirmar el correo antes de iniciar sesión.</p>
+  </div>
+</div>
+
+<div id="onboardingView" class="onboarding-wrap hidden">
+  <div class="onboarding">
+    <div class="onboarding-head">
+      <div>
+        <div class="brand">NIGHT<span>STOCK</span></div>
+        <h1>¿Qué quieres hacer?</h1>
+        <p class="hint" style="margin:0">Antes de entrar, elige cómo vas a trabajar.</p>
+      </div>
+      <button class="btn ghost" id="onboardingLogout">Cerrar sesión</button>
+    </div>
+
+    <div id="onboardingError" class="notice hidden"></div>
+
+    <div id="choicePanel" class="choice-grid">
+      <button class="choice" id="chooseCreate" type="button">
+        <div class="bigico">＋</div>
+        <h2>Crear una tienda</h2>
+        <p>Serás el responsable de la tienda y podrás compartir sus credenciales con tus trabajadores.</p>
+      </button>
+      <button class="choice" id="chooseJoin" type="button">
+        <div class="bigico">↗</div>
+        <h2>Unirme a una tienda</h2>
+        <p>Introduce el ID y la contraseña que te haya dado el responsable, o abre un enlace de invitación.</p>
+      </button>
+    </div>
+
+    <div id="createStorePanel" class="onboarding-panel hidden">
+      <button class="btn ghost back-btn" id="backChoicesCreate" type="button">← Volver</button>
+      <div class="card">
+        <h2 style="margin-top:0">Crear tienda</h2>
+        <p class="hint" style="margin-top:0">El ID y la contraseña se generan automáticamente. Guarda ambos para compartirlos con tus trabajadores.</p>
+        <form id="createStoreForm">
+          <div class="field"><label>Nombre de la tienda</label><input id="storeName" placeholder="Ej. Mi tienda" required maxlength="80"></div>
+          <button class="btn primary" type="submit">Crear tienda y generar acceso</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="joinStorePanel" class="onboarding-panel hidden">
+      <button class="btn ghost back-btn" id="backChoicesJoin" type="button">← Volver</button>
+      <div class="card">
+        <h2 style="margin-top:0">Unirme a una tienda</h2>
+        <p class="hint" style="margin-top:0">El responsable debe darte el ID y la contraseña de la tienda.</p>
+        <form id="joinStoreForm">
+          <div class="field"><label>ID de tienda</label><input id="joinStoreCode" autocomplete="off" required></div>
+          <div class="field"><label>Contraseña de tienda</label><input id="joinStorePassword" type="password" autocomplete="off" required></div>
+          <button class="btn primary" type="submit">Unirme a la tienda</button>
+        </form>
+        <p class="hint">Si has recibido un enlace de invitación, puedes abrirlo directamente y los datos se rellenarán automáticamente.</p>
+      </div>
+    </div>
+
+    <div id="createdStorePanel" class="onboarding-panel hidden">
+      <div class="card">
+        <div class="tag">Tienda creada</div>
+        <h2>Credenciales de acceso</h2>
+        <p class="hint">Puedes pasarlas manualmente o compartir el enlace/QR. <b>Quien tenga el enlace podrá solicitar unirse a esta tienda.</b></p>
+        <div class="store-credentials">
+          <div class="credential"><span>ID DE TIENDA</span><strong id="createdStoreCode">—</strong></div>
+          <div class="credential"><span>CONTRASEÑA DE TIENDA</span><strong id="createdStorePassword">—</strong></div>
+        </div>
+        <div class="section join-share">
+          <div>
+            <div class="field"><label>Enlace de unión</label><div class="copy-row"><input id="joinLink" readonly><button class="btn" id="copyJoinLink" type="button">Copiar</button></div></div>
+            <p class="store-link" id="joinLinkText"></p>
+          </div>
+          <div class="qr-box"><img id="joinQr" alt="Código QR para unirse a la tienda"></div>
+        </div>
+        <div class="onboarding-actions">
+          <button class="btn" id="regenerateShare" type="button">Generar nuevo enlace/QR</button>
+          <button class="btn primary" id="enterCreatedStore" type="button">Entrar en la tienda</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="appView" class="app hidden">
+  <header class="topbar"><div class="topbar-in">
+    <div class="brand">NIGHT<span>STOCK</span></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="btn store-access-btn" id="storeAccessBtn" type="button">↗ Acceso tienda</button>
+      <div class="user-chip" id="userChip">Sesión</div>
+    </div>
+  </div></header>
+  <main class="layout">
+    <section id="dashboardPage">
+      <div class="hero"><div><h1>Resumen</h1><p id="welcome">Tu actividad de inventario.</p></div><button class="btn primary" id="newProductBtn">＋ Producto</button></div>
+      <div class="grid">
+        <div class="card stat"><span>Productos</span><b id="statProducts">—</b></div>
+        <div class="card stat"><span>Unidades</span><b id="statUnits">—</b></div>
+        <div class="card stat"><span>Stock bajo</span><b id="statLow">—</b></div>
+        <div class="card stat"><span>Almacenes</span><b id="statWarehouses">—</b></div>
+      </div>
+      <div class="section card"><div class="section-head"><h2>Stock reciente</h2><button class="btn" id="dashInventory">Ver todo</button></div><div id="dashProducts" class="products"></div></div>
+    </section>
+
+    <section id="inventoryPage" class="hidden">
+      <div class="hero"><div><h1>Inventario</h1><p>Productos, imágenes y existencias.</p></div><button class="btn primary" id="inventoryAdd">＋ Producto</button></div>
+      <input id="searchInput" class="search" placeholder="Buscar por nombre, marca, modelo o código...">
+      <div class="section"><div id="productsGrid" class="products"></div></div>
+    </section>
+
+    <section id="salesPage" class="hidden">
+      <div class="hero"><div><h1>Operaciones</h1><p>Escanea un código y el producto se seleccionará automáticamente.</p></div></div>
+      <div class="card">
+        <div class="section-head"><h2>Entrada / salida</h2></div>
+        <div class="barcode-row">
+          <div class="field barcode-field">
+            <label>Código de barras</label>
+            <div class="scan-input-row">
+              <input id="movementBarcode" inputmode="numeric" autocomplete="off" placeholder="Escanea o escribe el código">
+              <button class="btn scan-btn" id="scanMovementBarcode" type="button">▣ Cámara</button>
+            </div>
+          </div>
+        </div>
+        <div id="movementProductInfo" class="product-info hidden"></div>
+        <div class="row">
+          <div class="field"><label>Producto</label><select id="movementProduct"></select></div>
+          <div class="field"><label>Almacén</label><select id="movementWarehouse"></select></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Tipo</label><select id="movementType"><option value="in">Entrada</option><option value="out">Salida</option></select></div>
+          <div class="field"><label>Cantidad</label><input id="movementQty" type="number" min="1" step="1" value="1"></div>
+        </div>
+        <div class="field"><label>Nota</label><input id="movementNote" placeholder="Motivo o referencia (opcional)"></div>
+        <button class="btn primary" id="movementBtn">Registrar movimiento</button>
+      </div>
+      <div class="section card"><div class="section-head"><h2>Últimos movimientos</h2></div><div class="table-wrap"><table class="table"><thead><tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Nota</th></tr></thead><tbody id="movementsBody"></tbody></table></div></div>
+    </section>
+
+    <section id="historyPage" class="hidden">
+      <div class="hero"><div><h1>Historial</h1><p>Consulta las operaciones registradas.</p></div></div>
+      <div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>Fecha</th><th>Producto</th><th>Almacén</th><th>Tipo</th><th>Cantidad</th><th>Usuario</th></tr></thead><tbody id="historyBody"></tbody></table></div></div>
+    </section>
+  </main>
+  <nav class="nav"><div class="nav-in">
+    <button class="active" data-page="dashboardPage"><span class="ico">⌂</span>Inicio</button>
+    <button data-page="inventoryPage"><span class="ico">▦</span>Inventario</button>
+    <button data-page="salesPage"><span class="ico">↕</span>Operaciones</button>
+    <button data-page="historyPage"><span class="ico">◷</span>Historial</button>
+  </div></nav>
+</div>
+
+<div id="modal" class="modal hidden"><div class="modal-box">
+  <div class="modal-head"><h3 id="modalTitle">Imagen</h3><button class="close" id="closeModal">✕</button></div>
+  <img id="modalImage" class="modal-image" alt="">
+</div></div>
+
+<div id="productModal" class="modal hidden"><div class="modal-box">
+  <div class="modal-head"><h3>Nuevo producto</h3><button class="close" id="closeProductModal">✕</button></div>
+  <form id="productForm">
+    <div class="row">
+      <div class="field"><label>Marca</label><input id="pBrand" required></div>
+      <div class="field"><label>Modelo / variante</label><input id="pModel" required></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Nombre</label><input id="pName" required></div>
+      <div class="field"><label>Precio</label><input id="pPrice" type="number" min="0" step="0.01" required></div>
+    </div>
+    <div class="field barcode-field">
+      <label>Código de barras</label>
+      <div class="scan-input-row">
+        <input id="pBarcode" inputmode="numeric" autocomplete="off" placeholder="Escanea o escribe el código">
+        <button class="btn scan-btn" id="scanProductBarcode" type="button">▣ Cámara</button>
+      </div>
+      <p class="hint compact-hint">Puedes escanear EAN-13, EAN-8, UPC y otros códigos compatibles.</p>
+    </div>
+    <div class="field"><label>Stock mínimo</label><input id="pMin" type="number" min="0" step="1" value="2"></div>
+    <div class="field"><label>Imagen del producto</label><input id="pImage" type="file" accept="image/*"></div>
+    <button class="btn primary" type="submit">Crear producto</button>
+  </form>
+</div></div>
+
+<div id="barcodeScannerModal" class="modal hidden">
+  <div class="modal-box scanner-modal">
+    <div class="modal-head">
+      <div>
+        <h3>Escanear código de barras</h3>
+        <p class="scanner-help">Apunta la cámara al código. Se detectará automáticamente.</p>
+      </div>
+      <button class="close" id="closeBarcodeScanner" type="button">✕</button>
+    </div>
+    <div class="scanner-stage">
+      <video id="barcodeVideo" playsinline muted></video>
+      <div class="scanner-frame"></div>
+    </div>
+    <div id="scannerStatus" class="scanner-status">Solicitando acceso a la cámara…</div>
+  </div>
+</div>
+
+
+<div id="storeAccessModal" class="modal hidden">
+  <div class="modal-box store-access-modal">
+    <div class="modal-head">
+      <h3>Acceso de la tienda</h3>
+      <button class="close" id="closeStoreAccessModal" type="button">✕</button>
+    </div>
+    <p class="access-intro">
+      Desde aquí puedes volver a consultar y compartir el acceso con cualquier trabajador en cualquier momento.
+      El QR y el enlace son para facilitar la incorporación; también puedes entregar el ID y la contraseña.
+    </p>
+    <div class="access-credentials">
+      <div class="access-item"><span>ID DE TIENDA</span><strong id="accessStoreCode">—</strong></div>
+      <div class="access-item"><span>CONTRASEÑA DE TIENDA</span><strong id="accessStorePassword">—</strong></div>
+    </div>
+    <div class="access-share">
+      <div>
+        <div class="field">
+          <label>Enlace para unirse</label>
+          <div class="copy-row">
+            <input id="accessJoinLink" readonly>
+            <button class="btn" id="copyAccessJoinLink" type="button">Copiar</button>
+          </div>
+        </div>
+        <p class="access-link" id="accessJoinLinkText"></p>
+      </div>
+      <div class="access-qr"><img id="accessJoinQr" alt="Código QR para unirse a la tienda"></div>
+    </div>
+    <div class="onboarding-actions">
+      <button class="btn" id="openJoinScreen" type="button">Pantalla para unirse</button>
+      <button class="btn primary" id="closeStoreAccess" type="button">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script>
+const SUPABASE_URL = "https://ontrvactrzmfmhwsetjy.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_f6A9WmlczZvLCrizyjNNkg_1xrqWDrV";
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+});
+
+let state={user:null,profile:null,store:null,storeRole:null,storeAccess:null,warehouses:[],products:[],stock:[],movements:[]};
+
+const $=id=>document.getElementById(id);
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
+function money(v){return new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR"}).format(Number(v||0));}
+function date(v){return new Date(v).toLocaleString("es-ES",{dateStyle:"short",timeStyle:"short"});}
+function toast(msg,bad=false){$("toast").textContent=msg;$("toast").classList.remove("hidden","bad");if(bad)$("toast").classList.add("bad");clearTimeout(window.__toast);window.__toast=setTimeout(()=>$("toast").classList.add("hidden"),3200);}
+function errorText(e){return e?.message||e?.error_description||"Ha ocurrido un error.";}
+
+function productCard(p, qty){
+  const image=p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:`<div class="noimg">Sin imagen</div>`;
+  return `<article class="card product">
+    <div class="photo">${image}${p.image_url?`<button class="zoom" data-zoom="${esc(p.image_url)}" data-title="${esc(p.name)}">⌕</button>`:""}</div>
+    <div class="pbody"><span class="tag">${esc(p.brand||"Marca")}</span><h3>${esc(p.name)}</h3><div class="meta">${esc(p.model||"")} · ${money(p.price)}</div>
+    <div class="stock"><span>Stock</span><strong class="${qty<=Number(p.min_stock||0)?'low':'ok'}">${Number(qty||0)}</strong></div></div>
+  </article>`;
+}
+
+async function loadProfile(){
+  const {data,error}=await db.from("profiles").select("*").eq("id",state.user.id).maybeSingle();
+  if(error)throw error; state.profile=data||{};
+  const {data:members,error:me}=await db.from("store_members").select("store_id,role").eq("user_id",state.user.id).order("created_at",{ascending:true}).limit(1);
+  if(me)throw me;
+  if(!members?.length){state.store=null;state.storeRole=null;return false;}
+  const {data:store,error:se}=await db.from("stores").select("*").eq("id",members[0].store_id).single();
+  if(se)throw se;state.store=store;state.storeRole=members[0].role;return true;
+}
+async function loadData(){
+  if(!state.store)return;
+  const sid=state.store.id;
+  const [w,p,s,m]=await Promise.all([
+    db.from("warehouses").select("*").eq("store_id",sid).order("created_at"),
+    db.from("products").select("*").eq("store_id",sid).eq("is_active",true).order("name"),
+    db.from("stock").select("*").eq("store_id",sid),
+    db.from("stock_movements").select("*").eq("store_id",sid).order("created_at",{ascending:false}).limit(50)
+  ]);
+  for(const r of [w,p,s,m])if(r.error)throw r.error;
+  state.warehouses=w.data||[];state.products=p.data||[];state.stock=s.data||[];state.movements=m.data||[];
+  render();
+}
+function qtyFor(pid,wid=null){
+  return state.stock.filter(x=>x.product_id===pid && (!wid||x.warehouse_id===wid)).reduce((a,x)=>a+Number(x.quantity||0),0);
+}
+function render(){
+  $("userChip").textContent=state.profile?.username?`@${state.profile.username}`:state.user.email;
+  $("welcome").textContent=state.store?`Almacén · ${state.store.name}`:"Crea o configura una tienda en Supabase.";
+  $("statProducts").textContent=state.products.length;
+  $("statUnits").textContent=state.products.reduce((a,p)=>a+qtyFor(p.id),0);
+  $("statLow").textContent=state.products.filter(p=>qtyFor(p.id)<=Number(p.min_stock||0)).length;
+  $("statWarehouses").textContent=state.warehouses.length;
+  $("dashProducts").innerHTML=state.products.slice(0,4).map(p=>productCard(p,qtyFor(p.id))).join("")||`<div class="empty">No hay productos todavía.</div>`;
+  $("productsGrid").innerHTML=filteredProducts().map(p=>productCard(p,qtyFor(p.id))).join("")||`<div class="empty">No hay productos que coincidan.</div>`;
+  fillSelectors();renderMovements();
+}
+function filteredProducts(){
+  const q=($("searchInput")?.value||"").trim().toLocaleLowerCase("es");
+  return state.products.filter(p=>[p.name,p.brand,p.model,p.barcode].some(x=>String(x||"").toLocaleLowerCase("es").includes(q)));
+}
+function fillSelectors(){
+  const currentProduct=$("movementProduct").value;
+  $("movementProduct").innerHTML=state.products.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} · stock ${qtyFor(p.id)}</option>`).join("");
+  $("movementWarehouse").innerHTML=state.warehouses.map(w=>`<option value="${esc(w.id)}">${esc(w.name)}</option>`).join("");
+  if(currentProduct && state.products.some(p=>p.id===currentProduct))$("movementProduct").value=currentProduct;
+  const selected=state.products.find(p=>p.id===$("movementProduct").value);
+  if(selected){
+    $("movementBarcode").value=String(selected.barcode||"");
+    renderMovementProductInfo(selected);
+  }
+}
+function renderMovements(){
+  const rows=state.movements.map(m=>{
+    const p=state.products.find(x=>x.id===m.product_id);
+    const w=state.warehouses.find(x=>x.id===m.warehouse_id);
+    return `<tr><td>${date(m.created_at)}</td><td>${esc(p?.name||m.product_id)}</td><td>${esc(m.movement_type||"")}</td><td>${Number(m.quantity||0)}</td><td>${esc(m.note||"")}</td></tr>`;
+  }).join("");
+  $("movementsBody").innerHTML=rows||`<tr><td colspan="5" class="empty">Sin movimientos.</td></tr>`;
+  $("historyBody").innerHTML=state.movements.map(m=>{
+    const p=state.products.find(x=>x.id===m.product_id),w=state.warehouses.find(x=>x.id===m.warehouse_id);
+    return `<tr><td>${date(m.created_at)}</td><td>${esc(p?.name||"—")}</td><td>${esc(w?.name||"—")}</td><td>${esc(m.movement_type||"")}</td><td>${Number(m.quantity||0)}</td><td>${esc(m.user_id||"—")}</td></tr>`;
+  }).join("")||`<tr><td colspan="6" class="empty">Sin historial.</td></tr>`;
+}
+
+function showPage(id){
+  ["dashboardPage","inventoryPage","salesPage","historyPage"].forEach(x=>$(x).classList.toggle("hidden",x!==id));
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function showOnboarding(){
+  $("loginView").classList.add("hidden");
+  $("appView").classList.add("hidden");
+  $("onboardingView").classList.remove("hidden");
+  ["choicePanel","createStorePanel","joinStorePanel","createdStorePanel"].forEach(id=>$(id).classList.toggle("hidden",id!=="choicePanel"));
+  $("onboardingError").classList.add("hidden");
+}
+function hideOnboarding(){
+  $("onboardingView").classList.add("hidden");
+}
+function showOnboardingPanel(id){
+  ["choicePanel","createStorePanel","joinStorePanel","createdStorePanel"].forEach(x=>$(x).classList.toggle("hidden",x!==id));
+  $("onboardingError").classList.add("hidden");
+}
+function storeRandomCode(){
+  const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out="";for(let i=0;i<10;i++)out+=chars[Math.floor(Math.random()*chars.length)];
+  return out;
+}
+function storeRandomPassword(){
+  const chars="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+  let out="";for(let i=0;i<14;i++)out+=chars[Math.floor(Math.random()*chars.length)];
+  return out;
+}
+function shareUrl(code,password){
+  const u=new URL(window.location.href);u.searchParams.set("join",code);u.searchParams.set("key",password);return u.toString();
+}
+
+async function loadStoreAccess(){
+  if(!state.store)return;
+  const {data,error}=await db.rpc("get_store_access_details",{p_store_id:state.store.id});
+  if(error)throw error;
+  if(!data?.join_code || !data?.join_password)throw new Error("No se han encontrado las credenciales de acceso de esta tienda.");
+  state.storeAccess={code:data.join_code,password:data.join_password};
+}
+function renderStoreAccessModal(){
+  if(!state.storeAccess)return;
+  const code=state.storeAccess.code,password=state.storeAccess.password,url=shareUrl(code,password);
+  $("accessStoreCode").textContent=code;
+  $("accessStorePassword").textContent=password;
+  $("accessJoinLink").value=url;
+  $("accessJoinLinkText").textContent=url;
+  $("accessJoinQr").src="https://api.qrserver.com/v1/create-qr-code/?size=260x260&data="+encodeURIComponent(url);
+}
+async function openStoreAccessModal(){
+  try{
+    await loadStoreAccess();
+    renderStoreAccessModal();
+    $("storeAccessModal").classList.remove("hidden");
+  }catch(e){toast(errorText(e),true);}
+}
+
+function renderCreatedStore(){
+  const code=state.storeAccess.code,password=state.storeAccess.password,url=shareUrl(code,password);
+  $("createdStoreCode").textContent=code;$("createdStorePassword").textContent=password;
+  $("joinLink").value=url;$("joinLinkText").textContent=url;
+  $("joinQr").src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data="+encodeURIComponent(url);
+}
+async function enterStore(){
+  hideOnboarding();$("appView").classList.remove("hidden");
+  try{await loadData();showPage("dashboardPage");}catch(e){toast(errorText(e),true);}
+}
+async function openApp(){
+  try{
+    const hasStore=await loadProfile();
+    if(!hasStore){showOnboarding();return;}
+    hideOnboarding();$("loginView").classList.add("hidden");$("appView").classList.remove("hidden");
+    await loadData();
+  }catch(e){toast(errorText(e),true);}
+}
+async function logout(){await db.auth.signOut();location.reload();}
+
+document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+$("dashInventory").onclick=()=>showPage("inventoryPage");
+$("searchInput").oninput=()=>render();
+$("newProductBtn").onclick=$("inventoryAdd").onclick=()=>{$("productModal").classList.remove("hidden");};
+$("closeProductModal").onclick=()=>{$("productModal").classList.add("hidden");};
+
+document.addEventListener("click",e=>{
+  const z=e.target.closest("[data-zoom]");if(z){$("modalTitle").textContent=z.dataset.title;$("modalImage").src=z.dataset.zoom;$("modal").classList.remove("hidden");}
+});
+$("closeModal").onclick=()=>$("modal").classList.add("hidden");
+$("modal").addEventListener("click",e=>{if(e.target===$("modal"))$("modal").classList.add("hidden");});
+
+$("showRegister").onclick=()=>{
+  $("loginPanel").classList.add("hidden");
+  $("registerPanel").classList.remove("hidden");
+  $("loginError").classList.add("hidden");
+};
+$("showLogin").onclick=()=>{
+  $("registerPanel").classList.add("hidden");
+  $("loginPanel").classList.remove("hidden");
+  $("loginError").classList.add("hidden");
+};
+
+$("registerForm").onsubmit=async e=>{
+  e.preventDefault();
+  $("loginError").classList.add("hidden");
+
+  const name=$("registerName").value.trim();
+  const username=$("registerUsername").value.trim().toLowerCase();
+  const email=$("registerEmail").value.trim().toLowerCase();
+  const password=$("registerPassword").value;
+  const password2=$("registerPassword2").value;
+
+  if(!/^[a-z0-9._-]{3,24}$/.test(username)){
+    $("loginError").textContent="El nombre de usuario debe tener entre 3 y 24 caracteres y solo puede usar letras, números, punto, guion y guion bajo.";
+    $("loginError").classList.remove("hidden"); return;
+  }
+  if(password!==password2){
+    $("loginError").textContent="Las contraseñas no coinciden.";
+    $("loginError").classList.remove("hidden"); return;
+  }
+
+  // The profile trigger can use these metadata fields to create the profile row.
+  const {data,error}=await db.auth.signUp({
+    email,password,
+    options:{
+      data:{name,username},
+      emailRedirectTo:window.location.origin+window.location.pathname
+    }
+  });
+
+  if(error){
+    $("loginError").textContent=errorText(error);
+    $("loginError").classList.remove("hidden");
+    return;
+  }
+
+  if(data.session){
+    state.user=data.user;
+    toast("Cuenta creada correctamente.");
+    await openApp();
+  }else{
+    $("loginError").textContent="Cuenta creada. Revisa tu email para confirmar la cuenta y después inicia sesión.";
+    $("loginError").classList.remove("hidden");
+    $("registerForm").reset();
+    $("registerPanel").classList.add("hidden");
+    $("loginPanel").classList.remove("hidden");
+  }
+};
+
+$("loginForm").onsubmit=async e=>{
+  e.preventDefault();$("loginError").classList.add("hidden");
+  const {error}=await db.auth.signInWithPassword({email:$("loginEmail").value.trim(),password:$("loginPassword").value});
+  if(error){$("loginError").textContent=errorText(error);$("loginError").classList.remove("hidden");return;}
+  const {data:{session}}=await db.auth.getSession();if(session){state.user=session.user;openApp();}
+};
+
+$("chooseCreate").onclick=()=>showOnboardingPanel("createStorePanel");
+$("chooseJoin").onclick=()=>{
+  const params=new URLSearchParams(location.search);
+  if(params.get("join"))$("joinStoreCode").value=params.get("join");
+  if(params.get("key"))$("joinStorePassword").value=params.get("key");
+  showOnboardingPanel("joinStorePanel");
+};
+$("backChoicesCreate").onclick=()=>showOnboardingPanel("choicePanel");
+$("backChoicesJoin").onclick=()=>showOnboardingPanel("choicePanel");
+$("onboardingLogout").onclick=logout;
+
+$("createStoreForm").onsubmit=async e=>{
+  e.preventDefault();$("onboardingError").classList.add("hidden");
+  const name=$("storeName").value.trim();
+  if(!name)return;
+  const code=storeRandomCode(),password=storeRandomPassword();
+  const {data,error}=await db.rpc("create_store_with_access",{p_name:name,p_join_code:code,p_join_password:password});
+  if(error){$("onboardingError").textContent=errorText(error);$("onboardingError").classList.remove("hidden");return;}
+  state.storeAccess={code,password};
+  await loadProfile();
+  renderCreatedStore();
+  showOnboardingPanel("createdStorePanel");
+  $("storeName").value="";
+};
+
+$("joinStoreForm").onsubmit=async e=>{
+  e.preventDefault();$("onboardingError").classList.add("hidden");
+  const code=$("joinStoreCode").value.trim().toUpperCase(),password=$("joinStorePassword").value;
+  if(!code||!password)return;
+  const {data,error}=await db.rpc("join_store_by_access",{p_join_code:code,p_join_password:password});
+  if(error){$("onboardingError").textContent=errorText(error);$("onboardingError").classList.remove("hidden");return;}
+  if(!data?.store_id){$("onboardingError").textContent="No se ha podido completar la unión.";$("onboardingError").classList.remove("hidden");return;}
+  history.replaceState({},document.title,window.location.pathname+window.location.hash);
+  await loadProfile();toast("Te has unido a la tienda correctamente.");await enterStore();
+};
+
+$("copyJoinLink").onclick=async()=>{
+  try{await navigator.clipboard.writeText($("joinLink").value);toast("Enlace copiado.");}
+  catch{ $("joinLink").select();document.execCommand("copy");toast("Enlace copiado.");}
+};
+$("regenerateShare").onclick=()=>{
+  if(!state.storeAccess)return;
+  renderCreatedStore();
+  toast("Enlace y QR actualizados.");
+};
+$("enterCreatedStore").onclick=enterStore;
+
+$("storeAccessBtn").onclick=openStoreAccessModal;
+$("closeStoreAccessModal").onclick=()=>$("storeAccessModal").classList.add("hidden");
+$("closeStoreAccess").onclick=()=>$("storeAccessModal").classList.add("hidden");
+$("storeAccessModal").addEventListener("click",e=>{
+  if(e.target===$("storeAccessModal"))$("storeAccessModal").classList.add("hidden");
+});
+$("copyAccessJoinLink").onclick=async()=>{
+  try{await navigator.clipboard.writeText($("accessJoinLink").value);toast("Enlace copiado.");}
+  catch{$("accessJoinLink").select();document.execCommand("copy");toast("Enlace copiado.");}
+};
+$("openJoinScreen").onclick=()=>{
+  $("storeAccessModal").classList.add("hidden");
+  showOnboardingPanel("joinStorePanel");
+  $("onboardingView").classList.remove("hidden");
+};
+
+
+
+let barcodeReader=null;
+let barcodeControls=null;
+let barcodeTarget=null;
+
+function setMovementProductByBarcode(code){
+  const clean=String(code||"").trim();
+  if(!$("movementBarcode"))return false;
+  $("movementBarcode").value=clean;
+  const product=state.products.find(p=>String(p.barcode||"").trim()===clean);
+  if(!product){
+    $("movementProductInfo").classList.add("hidden");
+    toast("No existe ningún producto con ese código de barras.",true);
+    return false;
+  }
+  $("movementProduct").value=product.id;
+  renderMovementProductInfo(product);
+  toast(`Producto detectado: ${product.name}`);
+  return true;
+}
+
+function renderMovementProductInfo(product){
+  const box=$("movementProductInfo");
+  if(!product){box.classList.add("hidden");box.innerHTML="";return;}
+  const img=product.image_url
+    ? `<img src="${esc(product.image_url)}" alt="${esc(product.name)}">`
+    : "Sin imagen";
+  box.innerHTML=`<div class="mini-photo">${img}</div><div><strong>${esc(product.name)}</strong><span>${esc(product.brand||"")} · ${esc(product.model||"")} · ${money(product.price)} · Stock: ${qtyFor(product.id)}</span></div>`;
+  box.classList.remove("hidden");
+}
+
+function stopBarcodeScanner(){
+  try{barcodeControls?.stop?.();}catch{}
+  barcodeControls=null;
+  try{barcodeReader?.reset?.();}catch{}
+  barcodeReader=null;
+  const video=$("barcodeVideo");
+  if(video?.srcObject){
+    video.srcObject.getTracks().forEach(t=>t.stop());
+    video.srcObject=null;
+  }
+  $("barcodeScannerModal").classList.add("hidden");
+}
+
+async function openBarcodeScanner(target){
+  barcodeTarget=target;
+  $("barcodeScannerModal").classList.remove("hidden");
+  $("scannerStatus").classList.remove("bad");
+  $("scannerStatus").textContent="Solicitando acceso a la cámara…";
+  const video=$("barcodeVideo");
+  try{
+    if(!window.isSecureContext && location.hostname!=="localhost"){
+      throw new Error("La cámara del navegador necesita HTTPS. En GitHub Pages funciona correctamente.");
+    }
+    if(!window.ZXingBrowser?.BrowserMultiFormatReader){
+      throw new Error("No se ha podido cargar el lector de códigos. Comprueba tu conexión a internet.");
+    }
+    barcodeReader=new ZXingBrowser.BrowserMultiFormatReader();
+    const devices=await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
+    if(!devices.length)throw new Error("No se ha encontrado ninguna cámara.");
+    const preferred=devices.find(d=>/back|rear|environment|trasera/i.test(d.label))||devices[devices.length-1];
+    $("scannerStatus").textContent="Apunta la cámara al código de barras…";
+    barcodeControls=await barcodeReader.decodeFromVideoDevice(preferred.deviceId,video,(result,error,controls)=>{
+      if(result){
+        const code=result.getText();
+        if(barcodeTarget==="product"){
+          $("pBarcode").value=code;
+          stopBarcodeScanner();
+          toast(`Código detectado: ${code}`);
+        }else if(barcodeTarget==="movement"){
+          const found=setMovementProductByBarcode(code);
+          if(found)stopBarcodeScanner();
+        }
+      }
+    });
+  }catch(e){
+    $("scannerStatus").textContent=errorText(e);
+    $("scannerStatus").classList.add("bad");
+    try{barcodeControls?.stop?.();}catch{}
+  }
+}
+
+$("closeBarcodeScanner").onclick=stopBarcodeScanner;
+$("barcodeScannerModal").addEventListener("click",e=>{
+  if(e.target===$("barcodeScannerModal"))stopBarcodeScanner();
+});
+$("scanProductBarcode").onclick=()=>openBarcodeScanner("product");
+$("scanMovementBarcode").onclick=()=>openBarcodeScanner("movement");
+
+$("movementBarcode").addEventListener("input",()=>{
+  const code=$("movementBarcode").value.trim();
+  if(!code){renderMovementProductInfo(null);return;}
+  const product=state.products.find(p=>String(p.barcode||"").trim()===code);
+  if(product){
+    $("movementProduct").value=product.id;
+    renderMovementProductInfo(product);
+  }
+});
+$("movementProduct").addEventListener("change",()=>{
+  const product=state.products.find(p=>p.id===$("movementProduct").value);
+  if(product){
+    $("movementBarcode").value=String(product.barcode||"");
+    renderMovementProductInfo(product);
+  }else renderMovementProductInfo(null);
+});
+
+$("movementBtn").onclick=async()=>{
+  if(!state.store)return toast("No hay tienda configurada.",true);
+  const pid=$("movementProduct").value,wid=$("movementWarehouse").value,type=$("movementType").value;
+  const qty=Number($("movementQty").value),note=$("movementNote").value.trim();
+  if(!pid||!wid||!Number.isInteger(qty)||qty<1)return toast("Revisa producto, almacén y cantidad.",true);
+  const {error}=await db.rpc("adjust_stock",{p_product_id:pid,p_warehouse_id:wid,p_quantity:type==="in"?qty:-qty,p_reason:note||"Movimiento manual"});
+  if(error){toast(errorText(error),true);return;}
+  $("movementQty").value=1;$("movementNote").value="";toast("Movimiento registrado.");await loadData();
+};
+
+$("productForm").onsubmit=async e=>{
+  e.preventDefault();if(!state.store)return toast("No hay tienda configurada.",true);
+  let imageUrl=null;
+  const file=$("pImage").files[0];
+  try{
+    if(file){
+      if(file.size>5*1024*1024)throw new Error("La imagen no puede superar 5 MB.");
+      const safe=file.name.toLowerCase().replace(/[^a-z0-9._-]/g,"-");
+      const path=`${state.store.id}/${crypto.randomUUID()}-${safe}`;
+      const up=await db.storage.from("product-images").upload(path,file,{contentType:file.type,upsert:false});
+      if(up.error){
+        if(/bucket not found/i.test(errorText(up.error))){
+          throw new Error("No existe el bucket «product-images» en Supabase. Ejecuta la migración de almacenamiento incluida con este archivo y vuelve a intentarlo.");
+        }
+        throw up.error;
+      }
+      imageUrl=db.storage.from("product-images").getPublicUrl(path).data.publicUrl;
+    }
+    const {error}=await db.rpc("create_product",{
+      p_store_id:state.store.id,p_brand:$("pBrand").value.trim(),p_model:$("pModel").value.trim(),
+      p_name:$("pName").value.trim(),p_price:Number($("pPrice").value),p_barcode:$("pBarcode").value.trim()||null,
+      p_min_stock:Number($("pMin").value||0),p_image_url:imageUrl
+    });
+    if(error)throw error;
+    $("productForm").reset();$("productModal").classList.add("hidden");toast("Producto creado.");await loadData();
+  }catch(err){toast(errorText(err),true);}
+};
+
+(async()=>{
+  const params=new URLSearchParams(location.search);
+  const {data:{session}}=await db.auth.getSession();
+  if(session){
+    state.user=session.user;
+    await openApp();
+    if(params.get("join")){
+      $("joinStoreCode").value=params.get("join");
+      $("joinStorePassword").value=params.get("key")||"";
+    }
+  }
+  db.auth.onAuthStateChange(async(_event,session)=>{
+    if(session&&!state.user){state.user=session.user;await openApp();}
+  });
+})();
+</script>
+</body>
+</html>
