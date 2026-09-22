@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#090b12">
   <title>NightStock — Inventario</title>
+  <meta name="application-name" content="NightStock">
+  <meta name="apple-mobile-web-app-title" content="NightStock">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%23090b12%27/%3E%3Cpath d=%27M15 45V19h7l20 17V19h7v26h-7L22 28v17z%27 fill=%27%237c5cff%27/%3E%3Ccircle cx=%2749%27 cy=%2715%27 r=%275%27 fill=%27%2322d3ee%27/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%23090b12%27/%3E%3Cpath d=%27M15 45V19h7l20 17V19h7v26h-7L22 28v17z%27 fill=%27%237c5cff%27/%3E%3Ccircle cx=%2749%27 cy=%2715%27 r=%275%27 fill=%27%2322d3ee%27/%3E%3C/svg%3E">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{
@@ -17,6 +21,102 @@
       radial-gradient(circle at 20% -10%,#2d205d55,transparent 35%),radial-gradient(circle at 100% 10%,#0c749033,transparent 30%),var(--bg);color:var(--text)}
     body{overflow-x:hidden}.hidden{display:none!important}
     button,input,select{font:inherit}button{cursor:pointer}
+
+    /* v13: onboarding / empty-store choice screen */
+    .onboarding-wrap{
+      min-height:100vh;
+      min-height:100svh;
+      display:grid;
+      place-items:center;
+      padding:clamp(18px,4vw,48px);
+      position:relative;
+    }
+    .onboarding{
+      width:min(900px,100%);
+      margin:0 auto;
+      padding:clamp(22px,4vw,42px);
+      border:1px solid #ffffff12;
+      border-radius:30px;
+      background:linear-gradient(145deg,#101522f5,#090d16f5);
+      box-shadow:0 30px 90px #0008, inset 0 1px 0 #ffffff08;
+      backdrop-filter:blur(24px);
+    }
+    .onboarding-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:24px;
+      margin-bottom:28px;
+    }
+    .onboarding-head .brand{font-size:22px;margin-bottom:22px}
+    .onboarding-head h1{
+      margin:0;
+      font-size:clamp(30px,5vw,46px);
+      line-height:1.05;
+      letter-spacing:-.055em;
+    }
+    .onboarding-head .hint{font-size:14px;margin-top:10px!important}
+    .onboarding-head>.btn{flex:0 0 auto}
+    .choice-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+    }
+    .onboarding .choice{
+      width:100%;
+      min-height:230px;
+      padding:26px;
+      border-radius:22px;
+      text-align:left;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+      align-items:flex-start;
+      transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+    }
+    .onboarding .choice:hover{
+      transform:translateY(-3px);
+      border-color:#7c5cff88;
+      box-shadow:0 20px 50px #0007,0 0 0 1px #7c5cff18 inset;
+    }
+    .onboarding .choice:focus-visible{outline:2px solid var(--accent2);outline-offset:3px}
+    .bigico{
+      width:52px;height:52px;border-radius:16px;
+      display:grid;place-items:center;
+      background:linear-gradient(135deg,#7c5cff22,#22d3ee16);
+      border:1px solid #7c5cff45;
+      color:#d9d2ff;font-size:27px;font-weight:800;
+      margin-bottom:22px;
+    }
+    .onboarding .choice h2{margin:0 0 9px;font-size:22px;letter-spacing:-.025em}
+    .onboarding .choice p{margin:0;max-width:38ch}
+    .onboarding-panel{
+      border:1px solid #ffffff12;
+      border-radius:20px;
+      background:#090e18aa;
+      padding:22px;
+      margin-top:4px;
+    }
+    .back-btn{margin-bottom:16px}
+    .onboarding-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .onboarding-actions .btn{flex:1;min-width:180px}
+    .onboarding .notice{background:#ff557714;border:1px solid #ff557733}
+    @media(max-width:700px){
+      .onboarding-wrap{padding:12px}
+      .onboarding{padding:20px 16px;border-radius:22px}
+      .onboarding-head{align-items:flex-start;display:block;margin-bottom:20px}
+      .onboarding-head .brand{margin-bottom:18px}
+      .onboarding-head>.btn{width:100%;margin-top:18px}
+      .choice-grid{grid-template-columns:1fr}
+      .onboarding .choice{min-height:0;padding:20px}
+      .bigico{margin-bottom:16px}
+      .onboarding-panel{padding:18px 15px}
+    }
+    @media(max-width:390px){
+      .onboarding-head h1{font-size:29px}
+      .onboarding .choice h2{font-size:20px}
+      .onboarding .choice p{font-size:13px}
+    }
 
     /* Onboarding: higher contrast and clearer typography */
     .onboarding{color:var(--text)}
