@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#090b12">
   <title>NightStock — Inventario</title>
+  <meta name="application-name" content="NightStock">
+  <meta name="apple-mobile-web-app-title" content="NightStock">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%23090b12%27/%3E%3Cpath d=%27M15 45V19h7l20 17V19h7v26h-7L22 28v17z%27 fill=%27%237c5cff%27/%3E%3Ccircle cx=%2749%27 cy=%2715%27 r=%275%27 fill=%27%2322d3ee%27/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%23090b12%27/%3E%3Cpath d=%27M15 45V19h7l20 17V19h7v26h-7L22 28v17z%27 fill=%27%237c5cff%27/%3E%3Ccircle cx=%2749%27 cy=%2715%27 r=%275%27 fill=%27%2322d3ee%27/%3E%3C/svg%3E">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{
@@ -17,6 +21,102 @@
       radial-gradient(circle at 20% -10%,#2d205d55,transparent 35%),radial-gradient(circle at 100% 10%,#0c749033,transparent 30%),var(--bg);color:var(--text)}
     body{overflow-x:hidden}.hidden{display:none!important}
     button,input,select{font:inherit}button{cursor:pointer}
+
+    /* v13: onboarding / empty-store choice screen */
+    .onboarding-wrap{
+      min-height:100vh;
+      min-height:100svh;
+      display:grid;
+      place-items:center;
+      padding:clamp(18px,4vw,48px);
+      position:relative;
+    }
+    .onboarding{
+      width:min(900px,100%);
+      margin:0 auto;
+      padding:clamp(22px,4vw,42px);
+      border:1px solid #ffffff12;
+      border-radius:30px;
+      background:linear-gradient(145deg,#101522f5,#090d16f5);
+      box-shadow:0 30px 90px #0008, inset 0 1px 0 #ffffff08;
+      backdrop-filter:blur(24px);
+    }
+    .onboarding-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:24px;
+      margin-bottom:28px;
+    }
+    .onboarding-head .brand{font-size:22px;margin-bottom:22px}
+    .onboarding-head h1{
+      margin:0;
+      font-size:clamp(30px,5vw,46px);
+      line-height:1.05;
+      letter-spacing:-.055em;
+    }
+    .onboarding-head .hint{font-size:14px;margin-top:10px!important}
+    .onboarding-head>.btn{flex:0 0 auto}
+    .choice-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+    }
+    .onboarding .choice{
+      width:100%;
+      min-height:230px;
+      padding:26px;
+      border-radius:22px;
+      text-align:left;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+      align-items:flex-start;
+      transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+    }
+    .onboarding .choice:hover{
+      transform:translateY(-3px);
+      border-color:#7c5cff88;
+      box-shadow:0 20px 50px #0007,0 0 0 1px #7c5cff18 inset;
+    }
+    .onboarding .choice:focus-visible{outline:2px solid var(--accent2);outline-offset:3px}
+    .bigico{
+      width:52px;height:52px;border-radius:16px;
+      display:grid;place-items:center;
+      background:linear-gradient(135deg,#7c5cff22,#22d3ee16);
+      border:1px solid #7c5cff45;
+      color:#d9d2ff;font-size:27px;font-weight:800;
+      margin-bottom:22px;
+    }
+    .onboarding .choice h2{margin:0 0 9px;font-size:22px;letter-spacing:-.025em}
+    .onboarding .choice p{margin:0;max-width:38ch}
+    .onboarding-panel{
+      border:1px solid #ffffff12;
+      border-radius:20px;
+      background:#090e18aa;
+      padding:22px;
+      margin-top:4px;
+    }
+    .back-btn{margin-bottom:16px}
+    .onboarding-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .onboarding-actions .btn{flex:1;min-width:180px}
+    .onboarding .notice{background:#ff557714;border:1px solid #ff557733}
+    @media(max-width:700px){
+      .onboarding-wrap{padding:12px}
+      .onboarding{padding:20px 16px;border-radius:22px}
+      .onboarding-head{align-items:flex-start;display:block;margin-bottom:20px}
+      .onboarding-head .brand{margin-bottom:18px}
+      .onboarding-head>.btn{width:100%;margin-top:18px}
+      .choice-grid{grid-template-columns:1fr}
+      .onboarding .choice{min-height:0;padding:20px}
+      .bigico{margin-bottom:16px}
+      .onboarding-panel{padding:18px 15px}
+    }
+    @media(max-width:390px){
+      .onboarding-head h1{font-size:29px}
+      .onboarding .choice h2{font-size:20px}
+      .onboarding .choice p{font-size:13px}
+    }
 
     /* Onboarding: higher contrast and clearer typography */
     .onboarding{color:var(--text)}
@@ -67,19 +167,80 @@
     .section{margin-top:24px}.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.section-head h2{font-size:18px;margin:0}
     .btn{border:1px solid var(--line);background:#ffffff08;color:var(--text);padding:11px 14px;border-radius:12px;font-weight:700}.btn:hover{background:#ffffff12}.btn.primary{border:0;background:linear-gradient(135deg,var(--accent),#4c7dff);box-shadow:0 10px 30px #6c5cff33}.btn.danger{color:#ff8ca3}.btn.ghost{background:transparent}
     .search{width:100%;border:1px solid var(--line);background:#090d16;color:var(--text);padding:13px 15px;border-radius:13px;outline:none}.search:focus,input:focus,select:focus{border-color:#6f63ff;box-shadow:0 0 0 3px #6f63ff18}
-    .products{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.product{overflow:hidden;padding:0}.photo{height:190px;background:#080b12;position:relative;display:flex;align-items:center;justify-content:center}.photo img{width:100%;height:100%;object-fit:cover}.zoom{position:absolute;right:10px;top:10px;border:1px solid #fff2;background:#080b12cc;color:#fff;border-radius:10px;padding:8px}.noimg{color:#657087;font-size:12px}.pbody{padding:15px}.tag{display:inline-flex;padding:5px 8px;border-radius:999px;background:#7c5cff18;color:#b9afff;font-size:11px;font-weight:800}.product h3{margin:10px 0 3px;font-size:16px}.meta{color:var(--muted);font-size:12px}.stock{display:flex;justify-content:space-between;align-items:end;margin-top:14px}.stock strong{font-size:21px}.low{color:#ffb454}.ok{color:var(--ok)}
+    .products{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.product{position:relative;overflow:hidden;padding:0}.photo{height:190px;background:#080b12;position:relative;display:flex;align-items:center;justify-content:center}.photo img{width:100%;height:100%;object-fit:cover}.zoom{position:absolute;right:10px;top:10px;border:1px solid #fff2;background:#080b12cc;color:#fff;border-radius:10px;padding:8px}.noimg{color:#657087;font-size:12px}.pbody{padding:15px}.tag{display:inline-flex;padding:5px 8px;border-radius:999px;background:#7c5cff18;color:#b9afff;font-size:11px;font-weight:800}.product h3{margin:10px 0 3px;font-size:16px}.meta{color:var(--muted);font-size:12px}.stock{display:flex;justify-content:space-between;align-items:end;margin-top:14px}.stock strong{font-size:21px}.low{color:#ffb454}.ok{color:var(--ok)}
     .login-wrap{min-height:100vh;display:grid;place-items:center;padding:20px}.login{width:min(440px,100%);background:#0d111ce8;border:1px solid var(--line);border-radius:26px;padding:28px;box-shadow:var(--shadow);backdrop-filter:blur(20px)}.login h1{font-size:34px;margin:0 0 8px}.login p{color:var(--muted);margin:0 0 22px}.field{display:grid;gap:7px;margin:12px 0}.field label{font-size:12px;color:var(--muted);font-weight:700}.field input,.field select{width:100%;padding:12px 13px;border-radius:12px;border:1px solid var(--line);background:#080c14;color:var(--text);outline:none}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.login .btn{width:100%;margin-top:8px}.notice{padding:10px 12px;border-radius:12px;background:#ff557714;color:#ff9ab0;font-size:13px;margin-bottom:12px}.hint{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.5}
-    .nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:#090c14ed;border-top:1px solid #ffffff10;backdrop-filter:blur(18px);padding:8px max(10px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom));display:flex;justify-content:center}.nav-in{width:min(620px,100%);display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.nav button{border:0;background:transparent;color:#778196;padding:8px 4px;border-radius:12px;font-size:11px}.nav button.active{color:#fff;background:#ffffff0c}.nav .ico{font-size:20px;display:block;margin-bottom:2px}
+    .nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:#090c14ed;border-top:1px solid #ffffff10;backdrop-filter:blur(18px);padding:8px max(10px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom));display:flex;justify-content:center}.nav-in{width:min(620px,100%);display:grid;grid-template-columns:repeat(5,1fr);gap:5px}.nav button{border:0;background:transparent;color:#778196;padding:8px 4px;border-radius:12px;font-size:11px}.nav button.active{color:#fff;background:#ffffff0c}.nav .ico{font-size:20px;display:block;margin-bottom:2px}
     .modal{position:fixed;inset:0;z-index:100;background:#000c;display:grid;place-items:center;padding:18px}.modal-box{width:min(620px,100%);max-height:92vh;overflow:auto;background:#0d111c;border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:var(--shadow)}.modal-image{max-height:72vh;width:100%;object-fit:contain;border-radius:15px;background:#05070b}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.modal-head h3{margin:0}.close{border:0;background:#ffffff0a;color:#fff;border-radius:10px;padding:9px 12px}
     .toast{position:fixed;right:16px;bottom:90px;z-index:150;background:#111827;border:1px solid var(--line);padding:12px 15px;border-radius:13px;box-shadow:var(--shadow);max-width:360px}.toast.bad{border-color:#ff557755}
     .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px}.table{width:100%;border-collapse:collapse;min-width:680px}.table th,.table td{text-align:left;padding:12px;border-bottom:1px solid #ffffff08;font-size:13px}.table th{color:var(--muted);font-weight:700}.empty{padding:30px;text-align:center;color:var(--muted)}
     @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.products{grid-template-columns:repeat(3,1fr)}}
     @media(max-width:650px){.layout{padding:18px 12px 100px}.hero{display:block}.hero .btn{margin-top:14px;width:100%}.grid{grid-template-columns:repeat(2,1fr);gap:9px}.card{padding:14px}.products{grid-template-columns:repeat(2,1fr);gap:9px}.photo{height:145px}.pbody{padding:12px}.row{grid-template-columns:1fr}.topbar{padding:12px}.user-chip{max-width:45vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
     @media(max-width:390px){.products{grid-template-columns:1fr}.photo{height:210px}}
-    .barcode-field{margin-bottom:4px}.scan-input-row{display:flex;gap:8px;align-items:stretch}.scan-input-row input{flex:1;min-width:0}.scan-btn{white-space:nowrap}.compact-hint{margin:7px 0 0}.product-info{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #ffffff12;background:#080c14;border-radius:14px;margin:6px 0 14px}.product-info .mini-photo{width:54px;height:54px;border-radius:10px;overflow:hidden;background:#111827;flex:0 0 54px;display:grid;place-items:center;color:#667085;font-size:10px}.product-info .mini-photo img{width:100%;height:100%;object-fit:cover}.product-info strong{display:block;font-size:15px}.product-info span{display:block;color:var(--muted);font-size:12px;margin-top:3px}.scanner-modal{max-width:680px}.scanner-help{margin:5px 0 0;color:var(--muted);font-size:12px}.scanner-stage{position:relative;width:100%;aspect-ratio:4/3;max-height:65vh;background:#000;border-radius:18px;overflow:hidden}.scanner-stage video{width:100%;height:100%;object-fit:cover;display:block}.scanner-frame{position:absolute;left:10%;right:10%;top:30%;bottom:30%;border:2px solid #fff;border-radius:14px;box-shadow:0 0 0 9999px #0003}.scanner-status{margin-top:12px;text-align:center;color:#dbe2ee;font-size:13px;line-height:1.4}.scanner-status.bad{color:#ff9ab0}@media(max-width:650px){.scan-input-row{display:grid;grid-template-columns:1fr}.scan-btn{width:100%}.scanner-modal{padding:14px}.scanner-stage{aspect-ratio:3/4;max-height:70vh}.scanner-frame{left:7%;right:7%;top:37%;bottom:37%}}
-    .onboarding-wrap{min-height:100vh;display:grid;place-items:center;padding:20px}.onboarding{width:min(860px,100%);background:#0d111ce8;border:1px solid var(--line);border-radius:28px;padding:26px;box-shadow:var(--shadow);backdrop-filter:blur(20px)}.onboarding-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}.onboarding h1{font-size:clamp(28px,5vw,42px);margin:8px 0 6px;letter-spacing:-.05em}.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.choice{border:1px solid var(--line);background:linear-gradient(145deg,#121827dd,#0b0f18dd);border-radius:20px;padding:22px;text-align:left;transition:.2s}.choice:hover{transform:translateY(-2px);border-color:#6f63ff66;background:#ffffff08}.choice .bigico{font-size:32px}.choice h2{margin:12px 0 6px;font-size:20px}.choice p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}.onboarding-panel{margin-top:18px}.store-credentials{display:grid;grid-template-columns:1fr 1fr;gap:14px}.credential{background:#080c14;border:1px solid var(--line);border-radius:16px;padding:14px}.credential span{display:block;color:var(--muted);font-size:11px;margin-bottom:6px}.credential strong{font-size:18px;letter-spacing:.05em;word-break:break-all}.join-share{display:grid;grid-template-columns:1fr 190px;gap:18px;align-items:center}.qr-box{background:#fff;border-radius:16px;padding:12px;display:grid;place-items:center;min-height:190px}.qr-box img{width:166px;height:166px}.copy-row{display:flex;gap:8px}.copy-row input{flex:1;min-width:0}.store-link{font-size:12px;color:var(--muted);line-height:1.4;word-break:break-all}.onboarding-actions{display:flex;gap:10px;margin-top:16px}.onboarding-actions .btn{flex:1}.back-btn{margin-bottom:6px}@media(max-width:650px){.choice-grid,.store-credentials,.join-share{grid-template-columns:1fr}.onboarding{padding:20px}.qr-box{width:190px;margin:auto}.onboarding-actions{display:grid;grid-template-columns:1fr}.onboarding-head{align-items:flex-start}.onboarding-head .btn{white-space:nowrap}}
+    .barcode-field{margin-bottom:4px}.scan-input-row{display:flex;gap:8px;align-items:stretch}.scan-input-row input{flex:1;min-width:0}.scan-btn{white-space:nowrap}.compact-hint{margin:7px 0 0}.product-info{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #ffffff12;background:#080c14;border-radius:14px;margin:6px 0 14px}.product-info .mini-photo{width:54px;height:54px;border-radius:10px;overflow:hidden;background:#111827;flex:0 0 54px;display:grid;place-items:center;color:#667085;font-size:10px}.product-info .mini-photo img{width:100%;height:100%;object-fit:cover}.product-info strong{display:block;font-size:15px}.product-info span{display:block;color:var(--muted);font-size:12px;margin-top:3px}@media(max-width:650px){.scan-input-row{display:grid;grid-template-columns:1fr}.scan-btn{width:100%}.choice-grid,.store-credentials,.join-share{grid-template-columns:1fr}.onboarding{padding:20px}.qr-box{width:190px;margin:auto}.onboarding-actions{display:grid;grid-template-columns:1fr}.onboarding-head{align-items:flex-start}.onboarding-head .btn{white-space:nowrap}}
+  
+    .identifier-field{margin-bottom:12px}
+    .identifier-field>label{color:#fff;font-weight:800}
+    .identifier-field>input{font-size:17px;font-weight:750;letter-spacing:.04em}
+    .compact-hint{margin:7px 0 0}
+    .identifier-notice{margin-top:9px;padding:10px 12px;border:1px solid #38d39f55;background:#38d39f12;color:#9ff0d0;border-radius:12px;font-size:12px;line-height:1.45}
+    #createProductBtn:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+    #appLogout:hover{color:#fff;background:#bc2545;border-color:#ef5a78}.product-actions{position:absolute;top:10px;right:10px;z-index:2}.product-actions summary{list-style:none;width:34px;height:34px;display:grid;place-items:center;border:1px solid #fff2;background:#080b12dd;color:#fff;border-radius:10px;font-size:20px;cursor:pointer}.product-actions summary::-webkit-details-marker{display:none}.product-actions-menu{position:absolute;top:40px;right:0;min-width:145px;padding:6px;background:#111827;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}.product-actions-menu button{width:100%;border:0;background:transparent;color:var(--text);text-align:left;padding:9px;border-radius:8px;font:inherit;font-size:13px}.product-actions-menu button:hover{background:#ffffff10}.product-actions-menu button.danger{color:#ff9ab0}
+    @media(max-width:650px){.scan-input-row{display:block}.scan-input-row .scan-btn{width:100%;margin-top:8px}}
+
+
+    .profile-wrap{position:relative}.user-chip{cursor:pointer;display:flex;align-items:center;gap:7px}.user-chip:after{content:'⌄';font-size:12px;color:#7f8ba0}.profile-menu{position:absolute;right:0;top:calc(100% + 8px);width:220px;background:#0d111c;border:1px solid var(--line);border-radius:16px;padding:7px;box-shadow:var(--shadow);z-index:80}.profile-menu button{width:100%;border:0;background:transparent;color:var(--text);text-align:left;padding:11px 12px;border-radius:10px;font:inherit;font-size:13px}.profile-menu button:hover{background:#ffffff0c}.profile-menu .menu-title{padding:8px 12px 6px;color:var(--muted);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}.settings-grid{display:grid;gap:18px}.option-row{display:flex;gap:8px;flex-wrap:wrap}.option-btn{border:1px solid var(--line);background:#ffffff06;color:var(--text);border-radius:12px;padding:10px 12px}.option-btn.active{border-color:var(--accent);box-shadow:0 0 0 2px #7c5cff22}.swatch{width:28px;height:28px;border-radius:50%;border:2px solid #fff3;display:inline-block}.color-btn{display:flex;align-items:center;gap:8px}.employee-list{display:grid;gap:9px}.employee-clickable{cursor:pointer;transition:transform .15s ease,border-color .15s ease}.employee-clickable:hover{transform:translateY(-1px);border-color:#7c5cff66}.employee-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:13px;border:1px solid var(--line);border-radius:14px;background:#ffffff04}.employee-main strong{display:block}.employee-main span{display:block;color:var(--muted);font-size:12px;margin-top:3px}.role-select{padding:9px;border-radius:10px;border:1px solid var(--line);background:#080c14;color:var(--text)}.readonly-field{opacity:.72}.modal-wide{width:min(760px,100%)}
+    [data-theme="light"]{--bg:#f3f5f9;--panel:#ffffff;--panel2:#eef1f6;--line:#d9deea;--text:#172033;--muted:#667085;--shadow:0 18px 60px #10182818}
+    [data-theme="light"] body{background:radial-gradient(circle at 20% -10%,#dcd5ff,transparent 35%),radial-gradient(circle at 100% 10%,#c9f4f7,transparent 30%),var(--bg)}
+    [data-theme="light"] .topbar{background:#ffffffd9;border-bottom-color:#0000000d}
+    [data-theme="light"] .store-picker,[data-theme="light"] .store-option{background:#ffffffee;color:#111827}
+    [data-theme="light"] .store-option{border-color:#d7ddea}
+    [data-theme="light"] .store-empty{border-color:#cfd6e3}
+    [data-theme="light"] .nav{background:#ffffffed;border-top-color:#00000010}
+    [data-theme="light"] .card,[data-theme="light"] .login,[data-theme="light"] .modal-box{background:linear-gradient(145deg,#ffffff,#f8f9fc)}
+    [data-theme="light"] .field input,[data-theme="light"] .field select,[data-theme="light"] .search,[data-theme="light"] .profile-menu,[data-theme="light"] .role-select{background:#fff;color:var(--text)}
+    @media(max-width:650px){.profile-menu{position:fixed;right:12px;top:62px;width:min(260px,calc(100vw - 24px))}.employee-row{grid-template-columns:1fr}.employee-row .role-select{width:100%}}
+
+    .admin-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.cash-card{display:flex;align-items:center;justify-content:space-between;gap:12px}.cash-balance{font-size:28px;font-weight:900}.status-pill{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:800}.status-pending{background:#ffb45418;color:#ffcb7c}.status-paid{background:#38d39f18;color:#7ee7bf}.permission-note{padding:12px 14px;border:1px solid #ffffff12;background:#ffffff06;border-radius:13px;color:var(--muted);font-size:13px;line-height:1.45}.user-menu{position:absolute;right:12px;top:58px;width:250px;background:#0d111c;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:7px;z-index:80}.user-menu button{width:100%;border:0;background:transparent;color:var(--text);padding:11px 12px;border-radius:10px;text-align:left}.user-menu button:hover{background:#ffffff0b}.user-menu .menu-label{padding:9px 12px 5px;color:var(--muted);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}.role-badge{font-size:11px;padding:4px 7px;border-radius:999px;background:#7c5cff18;color:#b9afff}
+    @media(max-width:650px){.admin-grid{grid-template-columns:1fr}.user-menu{right:8px;width:min(280px,calc(100vw - 16px))}}
+
+    /* v11: responsive dock separated from page content */
+    .layout{padding-bottom:150px}
+    .nav{padding:8px max(12px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom));box-shadow:0 -14px 35px #0005}
+    .nav-in{width:min(1000px,100%);display:flex;align-items:stretch;justify-content:center;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:0 2px}
+    .nav-in::-webkit-scrollbar{display:none}
+    .nav button{flex:0 0 82px;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+    .nav .ico{line-height:1}
+    .profile-wrap{position:relative}
+    .store-switch-btn{display:inline-flex;align-items:center;gap:7px}
+    .store-picker-wrap{min-height:100vh;display:grid;place-items:center;padding:20px}
+    .store-picker{width:min(860px,100%);background:#0d111ce8;border:1px solid var(--line);border-radius:28px;padding:28px;box-shadow:var(--shadow);backdrop-filter:blur(20px)}
+    .store-picker-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px}
+    .store-picker-head h1{font-size:clamp(28px,5vw,42px);margin:0 0 7px;letter-spacing:-.045em}
+    .store-picker-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}
+    .store-option{width:100%;text-align:left;color:var(--text);background:linear-gradient(145deg,#151c2c,#0d1421);border:1px solid #39445a;border-radius:18px;padding:18px;transition:.18s transform,.18s border-color,.18s background}
+    .store-option:hover{transform:translateY(-2px);border-color:#6f63ff;background:#172033}
+    .store-option .store-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:#7c5cff18;color:#b9afff;font-size:20px;margin-bottom:12px}
+    .store-option h3{margin:0 0 5px;font-size:17px}
+    .store-option .role{color:#aeb9ca;font-size:12px}
+    .store-picker-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+    .store-empty{padding:24px;border:1px dashed #39445a;border-radius:18px;color:var(--muted);text-align:center}
+    @media(max-width:650px){
+      .topbar-in{align-items:flex-start}
+      .topbar-in>div:last-child{min-width:0;display:flex;flex:1;justify-content:flex-end;flex-wrap:wrap;gap:5px}
+      .topbar-in>div:last-child .btn{font-size:11px;padding:8px 9px}
+      .layout{padding:16px 12px 145px}
+      .store-picker{padding:20px;border-radius:22px}
+      .store-picker-head{display:block}
+      .store-picker-head .btn{width:100%;margin-top:14px}
+      .store-picker-list{grid-template-columns:1fr}
+      .store-picker-actions{grid-template-columns:1fr}
+      .nav{padding-left:8px;padding-right:8px}
+      .nav-in{justify-content:flex-start}
+      .nav button{flex-basis:74px;min-height:60px;font-size:10px}
+      .nav .ico{font-size:19px}
+    }
+
   </style>
-  <script src="https://unpkg.com/@zxing/browser@0.1.5/umd/index.min.js"></script>
 </head>
 <body>
 <div id="loginView" class="login-wrap">
@@ -91,7 +252,7 @@
 
     <div id="loginPanel">
       <form id="loginForm">
-        <div class="field"><label>Email</label><input id="loginEmail" type="email" autocomplete="email" required></div>
+        <div class="field"><label>Correo electrónico o nombre de usuario</label><input id="loginIdentity" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="tu@email.com o usuario" required></div>
         <div class="field"><label>Contraseña</label><input id="loginPassword" type="password" autocomplete="current-password" required></div>
         <button class="btn primary" type="submit">Entrar</button>
       </form>
@@ -115,6 +276,25 @@
     </div>
 
     <p class="hint">La cuenta se crea mediante Supabase Auth. Si tu proyecto exige confirmación de email, tendrás que confirmar el correo antes de iniciar sesión.</p>
+  </div>
+</div>
+
+<div id="storePickerView" class="store-picker-wrap hidden">
+  <div class="store-picker">
+    <div class="store-picker-head">
+      <div>
+        <div class="brand">NIGHT<span>STOCK</span></div>
+        <h1>Elige un negocio</h1>
+        <p class="hint" style="margin:0">Selecciona la tienda a la que quieres entrar o crea/únete a otra.</p>
+      </div>
+      <button class="btn ghost" id="storePickerLogout" type="button">Cerrar sesión</button>
+    </div>
+    <div id="storePickerError" class="notice hidden"></div>
+    <div id="storePickerList" class="store-picker-list"></div>
+    <div class="store-picker-actions">
+      <button class="btn primary" id="storePickerCreate" type="button">＋ Crear nueva tienda</button>
+      <button class="btn" id="storePickerJoin" type="button">↗ Unirme a una tienda</button>
+    </div>
   </div>
 </div>
 
@@ -199,13 +379,22 @@
   <header class="topbar"><div class="topbar-in">
     <div class="brand">NIGHT<span>STOCK</span></div>
     <div style="display:flex;align-items:center;gap:8px">
-      <button class="btn store-access-btn" id="storeAccessBtn" type="button">↗ Acceso tienda</button>
-      <div class="user-chip" id="userChip">Sesión</div>
+      <button class="btn store-switch-btn" id="switchStoreBtn" type="button">▦ Cambiar tienda</button><button class="btn store-access-btn" id="storeAccessBtn" type="button">↗ Acceso tienda</button>
+      <div class="profile-wrap">
+        <button class="user-chip" id="userChip" type="button">Sesión</button>
+        <div id="profileMenu" class="profile-menu hidden">
+          <div class="menu-title" id="menuAccountTitle">Cuenta</div>
+          <button type="button" id="menuProfile">👤 Perfil</button>
+          <button type="button" id="menuSettings">⚙️ Configuración</button>
+          <button type="button" id="menuEmployees" class="hidden">👥 Empleados</button>
+          <button type="button" id="appLogout">↪ Cerrar sesión</button>
+        </div>
+      </div>
     </div>
   </div></header>
   <main class="layout">
     <section id="dashboardPage">
-      <div class="hero"><div><h1>Resumen</h1><p id="welcome">Tu actividad de inventario.</p></div><button class="btn primary" id="newProductBtn">＋ Producto</button></div>
+      <div class="hero"><div><h1>Resumen</h1><p id="welcome">Tu actividad de inventario.</p></div><button class="btn primary owner-only" id="newProductBtn">＋ Producto</button></div>
       <div class="grid">
         <div class="card stat"><span>Productos</span><b id="statProducts">—</b></div>
         <div class="card stat"><span>Unidades</span><b id="statUnits">—</b></div>
@@ -222,34 +411,50 @@
     </section>
 
     <section id="salesPage" class="hidden">
-      <div class="hero"><div><h1>Operaciones</h1><p>Escanea un código y el producto se seleccionará automáticamente.</p></div></div>
+      <div class="hero"><div><h1>Ventas</h1><p>Registra una salida de inventario por identificador.</p></div></div>
       <div class="card">
-        <div class="section-head"><h2>Entrada / salida</h2></div>
-        <div class="barcode-row">
-          <div class="field barcode-field">
-            <label>Código de barras</label>
-            <div class="scan-input-row">
-              <input id="movementBarcode" inputmode="numeric" autocomplete="off" placeholder="Escanea o escribe el código">
-              <button class="btn scan-btn" id="scanMovementBarcode" type="button">▣ Cámara</button>
-            </div>
-          </div>
+        <div class="section-head"><h2>Registrar venta</h2></div>
+        <div class="field identifier-field">
+          <label>Identificador del producto</label>
+          <input id="movementIdentifier" inputmode="text" autocomplete="off" placeholder="Ej. 15-1">
+          <p class="hint compact-hint">Al introducir un identificador existente, el producto se selecciona y sus datos aparecen automáticamente.</p>
         </div>
         <div id="movementProductInfo" class="product-info hidden"></div>
         <div class="row">
           <div class="field"><label>Producto</label><select id="movementProduct"></select></div>
-          <div class="field"><label>Almacén</label><select id="movementWarehouse"></select></div>
+          <div class="field"><label>Almacén de salida</label><select id="movementWarehouse"></select></div>
         </div>
         <div class="row">
-          <div class="field"><label>Tipo</label><select id="movementType"><option value="in">Entrada</option><option value="out">Salida</option></select></div>
           <div class="field"><label>Cantidad</label><input id="movementQty" type="number" min="1" step="1" value="1"></div>
+          <div class="field"><label>Caja donde entra el dinero</label><select id="movementCashBox"></select><p class="hint compact-hint">El importe de la operación se sumará automáticamente a esta caja.</p></div>
         </div>
+        <div class="field"><label>Total de la operación</label><div id="movementTotal" class="product-info" style="min-height:48px;display:flex;align-items:center"><strong>0,00 €</strong></div></div>
         <div class="field"><label>Nota</label><input id="movementNote" placeholder="Motivo o referencia (opcional)"></div>
-        <button class="btn primary" id="movementBtn">Registrar movimiento</button>
+        <button class="btn primary" id="movementBtn">Registrar venta</button>
       </div>
       <div class="section card"><div class="section-head"><h2>Últimos movimientos</h2></div><div class="table-wrap"><table class="table"><thead><tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Nota</th></tr></thead><tbody id="movementsBody"></tbody></table></div></div>
     </section>
 
-    <section id="historyPage" class="hidden">
+    <section id="restockPage" class="hidden">
+      <div class="hero"><div><h1>Reponer stock</h1><p>Añade unidades a un almacén o trasládalas entre almacenes.</p></div></div>
+      <div class="card">
+        <div class="section-head"><h2>Reposición o traslado</h2></div>
+        <div class="field identifier-field"><label>Identificador del producto</label><input id="restockIdentifier" autocomplete="off" placeholder="Ej. 15-1"></div>
+        <div id="restockProductInfo" class="product-info hidden"></div>
+        <div class="row"><div class="field"><label>Producto</label><select id="restockProduct"></select></div><div class="field"><label>Tipo</label><select id="restockType"><option value="restock">Añadir stock</option><option value="transfer">Trasladar desde otro almacén</option></select></div></div>
+        <div class="row"><div class="field"><label id="restockSourceLabel">Almacén</label><select id="restockWarehouse"></select></div><div class="field hidden" id="restockDestinationField"><label>Almacén de destino</label><select id="restockDestinationWarehouse"></select></div></div>
+        <div class="field"><label>Cantidad</label><input id="restockQty" type="number" min="1" step="1" value="1"></div>
+        <div class="field"><label>Nota</label><input id="restockNote" placeholder="Motivo o referencia (opcional)"></div>
+        <button class="btn primary" id="restockBtn" type="button">Añadir stock</button>
+      </div>
+    </section>
+
+    <section id="employeesPage" class="hidden"><div class="hero"><div><h1>Empleados</h1><p>Gestiona los miembros y sus permisos.</p></div></div><div class="card"><div id="employeesList" class="products"></div></div></section>
+<section id="cashPage" class="hidden"><div class="hero"><div><h1>Cajas</h1><p>Control de cajas de efectivo de la tienda.</p></div><button class="btn primary owner-only" id="newCashBoxBtn">＋ Caja</button></div><div class="grid" id="cashSummary"></div><div class="section card"><div class="section-head"><h2>Cajas</h2></div><div id="cashBoxesList" class="admin-grid"></div></div></section>
+<section id="debtsPage" class="hidden"><div class="hero"><div><h1>Deudas</h1><p>Registra y controla deudas pendientes.</p></div><button class="btn primary owner-only" id="newDebtBtn">＋ Deuda</button></div><div class="grid"><div class="card stat"><span>Deudas pendientes</span><b id="debtTotal">0,00 €</b></div><div class="card stat"><span>Número de deudas</span><b id="debtCount">0</b></div></div><div class="section card"><div class="table-wrap"><table class="table"><thead><tr><th>Nombre</th><th>Importe</th><th>Inicio</th><th>Estado</th><th></th></tr></thead><tbody id="debtsBody"></tbody></table></div></div></section>
+<section id="expensesPage" class="hidden"><div class="hero"><div><h1>Gastos</h1><p>Registra manualmente compras y otros gastos de la tienda.</p></div><button class="btn primary owner-only" id="newExpenseBtn">＋ Gasto</button></div><div class="grid" id="expenseSummary"></div><div class="section card"><div class="section-head"><h2>Gastos registrados</h2></div><div class="table-wrap"><table class="table"><thead><tr><th>Fecha</th><th>Concepto</th><th>Importe</th><th>Nota</th></tr></thead><tbody id="expensesBody"></tbody></table></div></div></section>
+<section id="warehousesPage" class="hidden"><div class="hero"><div><h1>Almacenes</h1><p>Gestiona los almacenes de la tienda y consulta sus existencias.</p></div><button class="btn primary owner-only" id="newWarehouseBtn">＋ Almacén</button></div><div class="grid" id="warehouseSummary"></div><div class="section card"><div class="section-head"><h2>Almacenes</h2></div><div id="warehousesCards" class="admin-grid"></div></div></section>
+<section id="historyPage" class="hidden">
       <div class="hero"><div><h1>Historial</h1><p>Consulta las operaciones registradas.</p></div></div>
       <div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>Fecha</th><th>Producto</th><th>Almacén</th><th>Tipo</th><th>Cantidad</th><th>Usuario</th></tr></thead><tbody id="historyBody"></tbody></table></div></div>
     </section>
@@ -257,8 +462,9 @@
   <nav class="nav"><div class="nav-in">
     <button class="active" data-page="dashboardPage"><span class="ico">⌂</span>Inicio</button>
     <button data-page="inventoryPage"><span class="ico">▦</span>Inventario</button>
-    <button data-page="salesPage"><span class="ico">↕</span>Operaciones</button>
-    <button data-page="historyPage"><span class="ico">◷</span>Historial</button>
+    <button data-page="salesPage"><span class="ico">€</span>Ventas</button>
+    <button data-page="restockPage" class="owner-only-nav"><span class="ico">＋</span>Reponer</button>
+    <button data-page="historyPage"><span class="ico">◷</span>Historial</button><button data-page="expensesPage" class="owner-only-nav"><span class="ico">↘</span>Gastos</button><button data-page="warehousesPage"><span class="ico">▣</span>Almacenes</button><button data-page="employeesPage" class="owner-only-nav"><span class="ico">👥</span>Empleados</button><button data-page="cashPage"><span class="ico">€</span>Cajas</button><button data-page="debtsPage" class="owner-only-nav"><span class="ico">💳</span>Deudas</button>
   </div></nav>
 </div>
 
@@ -268,47 +474,30 @@
 </div></div>
 
 <div id="productModal" class="modal hidden"><div class="modal-box">
-  <div class="modal-head"><h3>Nuevo producto</h3><button class="close" id="closeProductModal">✕</button></div>
+  <div class="modal-head"><h3 id="productModalTitle">Nuevo producto</h3><button class="close" id="closeProductModal" type="button">✕</button></div>
   <form id="productForm">
+    <div class="field identifier-field">
+      <label>Identificador del producto</label>
+      <input id="pIdentifier" inputmode="text" autocomplete="off" placeholder="Ej. 15-1" required maxlength="60">
+      <p class="hint compact-hint">Es el dato principal. Si ya existe, se cargarán automáticamente sus datos.</p>
+      <div id="existingProductNotice" class="identifier-notice hidden"></div>
+    </div>
+
     <div class="row">
       <div class="field"><label>Marca</label><input id="pBrand" required></div>
-      <div class="field"><label>Modelo / variante</label><input id="pModel" required></div>
+      <div class="field"><label>Caladas</label><input id="pPuffs" type="number" min="1" step="1" required></div>
     </div>
+    <div class="field"><label>Sabor</label><input id="pFlavor" required></div>
     <div class="row">
-      <div class="field"><label>Nombre</label><input id="pName" required></div>
-      <div class="field"><label>Precio</label><input id="pPrice" type="number" min="0" step="0.01" required></div>
+      <div class="field"><label>Precio de venta</label><input id="pPrice" type="number" min="0" step="0.01" required></div>
+      <div class="field"><label>Precio de compra</label><input id="pPurchasePrice" type="number" min="0" step="0.01" placeholder="Opcional"></div>
     </div>
-    <div class="field barcode-field">
-      <label>Código de barras</label>
-      <div class="scan-input-row">
-        <input id="pBarcode" inputmode="numeric" autocomplete="off" placeholder="Escanea o escribe el código">
-        <button class="btn scan-btn" id="scanProductBarcode" type="button">▣ Cámara</button>
-      </div>
-      <p class="hint compact-hint">Puedes escanear EAN-13, EAN-8, UPC y otros códigos compatibles.</p>
-    </div>
-    <div class="field"><label>Stock mínimo</label><input id="pMin" type="number" min="0" step="1" value="2"></div>
     <div class="field"><label>Imagen del producto</label><input id="pImage" type="file" accept="image/*"></div>
-    <button class="btn primary" type="submit">Crear producto</button>
+    <div class="row"><div class="field"><label>Stock actual</label><input id="pCurrentStock" type="number" min="0" step="1" value="0"></div><div class="field"><label>Stock mínimo</label><input id="pMin" type="number" min="0" step="1" value="0"></div></div>
+    <div class="field"><label>Almacén para el stock inicial</label><select id="pWarehouse"></select></div>
+    <button class="btn primary" id="createProductBtn" type="submit">Crear producto</button>
   </form>
 </div></div>
-
-<div id="barcodeScannerModal" class="modal hidden">
-  <div class="modal-box scanner-modal">
-    <div class="modal-head">
-      <div>
-        <h3>Escanear código de barras</h3>
-        <p class="scanner-help">Apunta la cámara al código. Se detectará automáticamente.</p>
-      </div>
-      <button class="close" id="closeBarcodeScanner" type="button">✕</button>
-    </div>
-    <div class="scanner-stage">
-      <video id="barcodeVideo" playsinline muted></video>
-      <div class="scanner-frame"></div>
-    </div>
-    <div id="scannerStatus" class="scanner-status">Solicitando acceso a la cámara…</div>
-  </div>
-</div>
-
 
 <div id="storeAccessModal" class="modal hidden">
   <div class="modal-box store-access-modal">
@@ -321,8 +510,16 @@
       El QR y el enlace son para facilitar la incorporación; también puedes entregar el ID y la contraseña.
     </p>
     <div class="access-credentials">
-      <div class="access-item"><span>ID DE TIENDA</span><strong id="accessStoreCode">—</strong></div>
-      <div class="access-item"><span>CONTRASEÑA DE TIENDA</span><strong id="accessStorePassword">—</strong></div>
+      <div class="access-item">
+        <span>ID DE TIENDA</span>
+        <strong id="accessStoreCode">—</strong>
+        <button class="btn small" id="copyAccessStoreCode" type="button">Copiar ID</button>
+      </div>
+      <div class="access-item">
+        <span>CONTRASEÑA DE TIENDA</span>
+        <strong id="accessStorePassword">—</strong>
+        <button class="btn small" id="copyAccessStorePassword" type="button">Copiar contraseña</button>
+      </div>
     </div>
     <div class="access-share">
       <div>
@@ -344,6 +541,56 @@
   </div>
 </div>
 
+
+<div id="profileModal" class="modal hidden"><div class="modal-box modal-wide">
+  <div class="modal-head"><h3>👤 Perfil</h3><button class="close" id="closeProfileModal" type="button">✕</button></div>
+  <form id="profileForm">
+    <div class="row"><div class="field"><label>Nombre</label><input id="profileName" required maxlength="80"></div><div class="field"><label>Nombre de usuario</label><input id="profileUsername" required minlength="3" maxlength="24" pattern="[A-Za-z0-9._-]+"></div></div>
+    <div class="field"><label>Email</label><input id="profileEmail" class="readonly-field" type="email" readonly></div>
+    <div class="field"><label>Nueva contraseña <span class="meta">(opcional)</span></label><input id="profilePassword" type="password" minlength="6" autocomplete="new-password" placeholder="Deja vacío para mantenerla"></div>
+    <button class="btn primary" type="submit">Guardar perfil</button>
+  </form>
+</div></div>
+
+<div id="settingsModal" class="modal hidden"><div class="modal-box modal-wide">
+  <div class="modal-head"><h3>⚙️ Configuración</h3><button class="close" id="closeSettingsModal" type="button">✕</button></div>
+  <div class="settings-grid">
+    <div><strong>Tema</strong><div class="option-row" style="margin-top:8px"><button class="option-btn" data-theme-choice="dark" type="button">Oscuro</button><button class="option-btn" data-theme-choice="light" type="button">Claro</button></div></div>
+    <div><strong>Color principal</strong><div class="option-row" style="margin-top:8px"><button class="option-btn color-btn" data-accent="#7c5cff" type="button"><span class="swatch" style="background:#7c5cff"></span>Violeta</button><button class="option-btn color-btn" data-accent="#22d3ee" type="button"><span class="swatch" style="background:#22d3ee"></span>Cian</button><button class="option-btn color-btn" data-accent="#38d39f" type="button"><span class="swatch" style="background:#38d39f"></span>Verde</button><button class="option-btn color-btn" data-accent="#ff8a4c" type="button"><span class="swatch" style="background:#ff8a4c"></span>Naranja</button></div></div>
+    <div><strong>Idioma</strong><div class="option-row" style="margin-top:8px"><button class="option-btn" data-lang="es" type="button">🇪🇸 Español</button><button class="option-btn" data-lang="en" type="button">🇬🇧 English</button></div><p class="hint" style="margin-bottom:0">El idioma se guarda en este dispositivo.</p></div>
+    <div class="owner-only" style="margin-top:4px;padding-top:18px;border-top:1px solid var(--line)">
+      <strong style="color:#ff7f8d">Zona peligrosa</strong>
+      <p class="hint" style="margin:6px 0 10px">Eliminar la tienda borrará sus productos, stock, almacenes, empleados, cajas, deudas, gastos e historial. Esta acción no se puede deshacer.</p>
+      <button class="btn danger" id="deleteStoreBtn" type="button">Eliminar tienda completa</button>
+    </div>
+  </div>
+</div></div>
+
+<div id="employeesModal" class="modal hidden"><div class="modal-box modal-wide">
+  <div class="modal-head"><div><h3>👥 Empleados</h3><p class="hint" style="margin:4px 0 0">Gestiona quién pertenece a esta tienda y su rango.</p></div><button class="close" id="closeEmployeesModal" type="button">✕</button></div>
+  <div id="employeesList" class="employee-list"></div>
+</div></div>
+
+<div id="employeeHistoryModal" class="modal hidden"><div class="modal-box modal-wide">
+  <div class="modal-head"><div><h3 id="employeeHistoryTitle">Historial del empleado</h3><p id="employeeHistoryMeta" class="hint" style="margin:4px 0 0"></p></div><button class="close" id="closeEmployeeHistoryModal" type="button">✕</button></div>
+  <div class="table-wrap"><table class="table"><thead><tr><th>Fecha</th><th>Producto</th><th>Almacén</th><th>Tipo</th><th>Cantidad</th><th>Nota</th></tr></thead><tbody id="employeeHistoryBody"></tbody></table></div>
+</div></div>
+<div id="cashBoxModal" class="modal hidden"><div class="modal-box"><div class="modal-head"><h3>Nueva caja</h3><button class="close" id="closeCashBoxModal">✕</button></div><form id="cashBoxForm"><div class="field"><label>Nombre de la caja</label><input id="cashBoxName" required maxlength="60" placeholder="Ej. Caja principal"></div><button class="btn primary" type="submit">Crear caja</button></form></div></div>
+<div id="cashMovementModal" class="modal hidden"><div class="modal-box"><div class="modal-head"><h3>Movimiento de caja</h3><button class="close" id="closeCashMovementModal">✕</button></div><form id="cashMovementForm"><input id="cashMovementBox" type="hidden"><div class="field"><label>Tipo</label><select id="cashMovementType"><option value="in">Entrada</option><option value="out">Salida</option></select></div><div class="field"><label>Importe</label><input id="cashMovementAmount" type="number" min="0.01" step="0.01" required></div><div class="field"><label>Nota</label><input id="cashMovementNote" maxlength="200"></div><button class="btn primary" type="submit">Guardar movimiento</button></form></div></div>
+<div id="warehouseModal" class="modal hidden"><div class="modal-box"><div class="modal-head"><h3>Nuevo almacén</h3><button class="close" id="closeWarehouseModal">✕</button></div><form id="warehouseForm"><div class="field"><label>Nombre del almacén</label><input id="warehouseName" required maxlength="80" placeholder="Ej. Almacén principal"></div><div class="field"><label>Ubicación / nota</label><input id="warehouseLocation" maxlength="160" placeholder="Opcional"></div><button class="btn primary" type="submit">Crear almacén</button></form></div></div>
+<div id="warehouseDetailModal" class="modal hidden"><div class="modal-box modal-wide"><div class="modal-head"><div><h3 id="warehouseDetailTitle">Almacén</h3><p id="warehouseDetailMeta" class="hint" style="margin:4px 0 0"></p></div><button class="close" id="closeWarehouseDetailModal" type="button">✕</button></div><div id="warehouseDetailBody"></div></div></div>
+<div id="debtModal" class="modal hidden"><div class="modal-box"><div class="modal-head"><h3>Nueva deuda</h3><button class="close" id="closeDebtModal">✕</button></div><form id="debtForm"><div class="field"><label>Nombre</label><input id="debtName" required maxlength="100"></div><div class="field"><label>Dinero</label><input id="debtAmount" type="number" min="0.01" step="0.01" required></div><div class="field"><label>Fecha de inicio</label><input id="debtStartDate" type="date" required></div><button class="btn primary" type="submit">Añadir deuda</button></form></div></div>
+<div id="expenseModal" class="modal hidden"><div class="modal-box"><div class="modal-head"><h3>Nuevo gasto</h3><button class="close" id="closeExpenseModal">✕</button></div><form id="expenseForm"><div class="field"><label>Concepto</label><input id="expenseName" required maxlength="120" placeholder="Ej. Compra de material"></div><div class="field"><label>Importe</label><input id="expenseAmount" type="number" min="0.01" step="0.01" required></div><div class="field"><label>Fecha</label><input id="expenseDate" type="date" required></div><div class="field"><label>Nota</label><input id="expenseNote" maxlength="200" placeholder="Opcional"></div><button class="btn primary" type="submit">Guardar gasto</button></form></div></div>
+<div id="deleteStoreModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head"><div><h3 style="color:#ff7f8d">Eliminar tienda completa</h3><p class="hint" style="margin:4px 0 0">Esta acción es permanente.</p></div><button class="close" id="closeDeleteStoreModal" type="button">✕</button></div>
+    <div class="permission-note" style="border-color:#ff5f731f;background:#ff5f7308;margin-bottom:14px">
+      Vas a eliminar <strong id="deleteStoreName">esta tienda</strong> y todos los datos asociados: productos, existencias, almacenes, empleados, cajas, deudas, gastos, movimientos e historial. No podrás recuperar estos datos después.
+    </div>
+    <div class="field"><label>Escribe ELIMINAR para confirmar</label><input id="deleteStoreConfirm" autocomplete="off" placeholder="ELIMINAR"></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn" id="cancelDeleteStore" type="button">Cancelar</button><button class="btn danger" id="confirmDeleteStore" type="button" disabled>Eliminar definitivamente</button></div>
+  </div>
+</div>
 <div id="toast" class="toast hidden"></div>
 
 <script>
@@ -354,7 +601,11 @@ const db = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
 });
 
-let state={user:null,profile:null,store:null,storeRole:null,storeAccess:null,warehouses:[],products:[],stock:[],movements:[]};
+let state={user:null,profile:null,store:null,storeRole:null,storeAccess:null,stores:[],warehouses:[],products:[],stock:[],movements:[],activity:[],productImages:[],cashBoxes:[],debts:[],expenses:[],userProfiles:{}};
+let editingProductId=null;
+let currentLanguage=localStorage.getItem("nightstock_language")||"es";
+let currentTheme=localStorage.getItem("nightstock_theme")||"dark";
+let currentAccent=localStorage.getItem("nightstock_accent")||"#7c5cff";
 
 const $=id=>document.getElementById(id);
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
@@ -363,35 +614,138 @@ function date(v){return new Date(v).toLocaleString("es-ES",{dateStyle:"short",ti
 function toast(msg,bad=false){$("toast").textContent=msg;$("toast").classList.remove("hidden","bad");if(bad)$("toast").classList.add("bad");clearTimeout(window.__toast);window.__toast=setTimeout(()=>$("toast").classList.add("hidden"),3200);}
 function errorText(e){return e?.message||e?.error_description||"Ha ocurrido un error.";}
 
+function imageFor(pid){
+  return state.productImages.find(x=>x.product_id===pid)?.image_url||"";
+}
 function productCard(p, qty){
-  const image=p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:`<div class="noimg">Sin imagen</div>`;
-  return `<article class="card product">
-    <div class="photo">${image}${p.image_url?`<button class="zoom" data-zoom="${esc(p.image_url)}" data-title="${esc(p.name)}">⌕</button>`:""}</div>
-    <div class="pbody"><span class="tag">${esc(p.brand||"Marca")}</span><h3>${esc(p.name)}</h3><div class="meta">${esc(p.model||"")} · ${money(p.price)}</div>
-    <div class="stock"><span>Stock</span><strong class="${qty<=Number(p.min_stock||0)?'low':'ok'}">${Number(qty||0)}</strong></div></div>
-  </article>`;
+  const img=imageFor(p.id);
+  const photo=img
+    ? `<button class="photo" type="button" data-zoom="${esc(img)}" data-title="${esc(p.flavor||"Producto")}"><img src="${esc(img)}" alt="${esc(p.flavor||"Producto")}"><span class="zoom">⤢</span></button>`
+    : `<div class="photo"><div class="noimg">Sin imagen</div></div>`;
+  const actions=isOwner()?`<details class="product-actions"><summary aria-label="Opciones del producto">⋮</summary><div class="product-actions-menu"><button type="button" data-edit-product="${esc(p.id)}">Editar</button><button type="button" class="danger" data-delete-product="${esc(p.id)}">Eliminar</button></div></details>`:"";
+  return `<article class="card product">${actions}${photo}<div class="pbody">
+    <span class="tag">${esc(p.brand||"Marca")}</span>
+    <h3>${esc(p.flavor||"Sin sabor")}</h3>
+    <div class="meta">${Number(p.puffs||0).toLocaleString("es-ES")} caladas · ${money(p.price)} · ID ${esc(p.barcode||"—")}</div>
+    <div class="stock"><span>Stock</span><strong class="${qty<=Number(p.minimum_stock||0)?'low':'ok'}">${Number(qty||0)}</strong></div>
+  </div></article>`;
 }
 
-async function loadProfile(){
-  const {data,error}=await db.from("profiles").select("*").eq("id",state.user.id).maybeSingle();
-  if(error)throw error; state.profile=data||{};
-  const {data:members,error:me}=await db.from("store_members").select("store_id,role").eq("user_id",state.user.id).order("created_at",{ascending:true}).limit(1);
-  if(me)throw me;
-  if(!members?.length){state.store=null;state.storeRole=null;return false;}
-  const {data:store,error:se}=await db.from("stores").select("*").eq("id",members[0].store_id).single();
-  if(se)throw se;state.store=store;state.storeRole=members[0].role;return true;
+
+function applyPreferences(){
+  document.documentElement.dataset.theme=currentTheme;
+  document.documentElement.style.setProperty("--accent",currentAccent);
+  document.documentElement.lang=currentLanguage;
+  document.querySelectorAll("[data-theme-choice]").forEach(b=>b.classList.toggle("active",b.dataset.themeChoice===currentTheme));
+  document.querySelectorAll("[data-accent]").forEach(b=>b.classList.toggle("active",b.dataset.accent.toLowerCase()===currentAccent.toLowerCase()));
+  document.querySelectorAll("[data-lang]").forEach(b=>b.classList.toggle("active",b.dataset.lang===currentLanguage));
 }
+function setTheme(v){currentTheme=v;localStorage.setItem("nightstock_theme",v);applyPreferences();}
+function setAccent(v){currentAccent=v;localStorage.setItem("nightstock_accent",v);applyPreferences();}
+function setLanguage(v){currentLanguage=v;localStorage.setItem("nightstock_language",v);applyPreferences();applyLanguage();}
+function applyLanguage(){
+  const en=currentLanguage==="en";
+  const map=en?{
+    menuAccountTitle:"Account",menuProfile:"👤 Profile",menuSettings:"⚙️ Settings",menuEmployees:"👥 Employees",appLogout:"↪ Sign out",
+    dashboard:"Dashboard",inventory:"Inventory",sales:"Sales",restock:"Restock",history:"History",summary:"Summary",products:"Products",units:"Units",low:"Low stock",warehouses:"Warehouses",recent:"Recent stock",viewAll:"View all",
+    inventoryDesc:"Products, images and stock.",salesDesc:"Register an inventory sale by identifier.",restockDesc:"Add units to a warehouse or move them between warehouses.",historyDesc:"Review registered operations.",
+  }:{menuAccountTitle:"Cuenta",menuProfile:"👤 Perfil",menuSettings:"⚙️ Configuración",menuEmployees:"👥 Empleados",appLogout:"↪ Cerrar sesión",dashboard:"Inicio",inventory:"Inventario",sales:"Ventas",restock:"Reponer",history:"Historial",summary:"Resumen",products:"Productos",units:"Unidades",low:"Stock bajo",warehouses:"Almacenes",recent:"Stock reciente",viewAll:"Ver todo",inventoryDesc:"Productos, imágenes y existencias.",salesDesc:"Registra una salida de inventario por identificador.",restockDesc:"Añade unidades a un almacén o trasládalas entre almacenes.",historyDesc:"Consulta las operaciones registradas."};
+  const set=(id,text)=>{const el=$(id);if(el)el.textContent=text;};
+  set("menuAccountTitle",map.menuAccountTitle);set("menuProfile",map.menuProfile);set("menuSettings",map.menuSettings);set("menuEmployees",map.menuEmployees);set("appLogout",map.appLogout);
+  const nav=[...document.querySelectorAll(".nav button")]; nav.forEach(b=>{const key={dashboardPage:map.dashboard,inventoryPage:map.inventory,salesPage:map.sales,restockPage:map.restock,historyPage:map.history}[b.dataset.page];if(key){const t=b.querySelector(".ico");b.innerHTML=`${t? t.outerHTML:""}${key}`;}});
+  set("statProducts",state.products?.length??0); // numeric, immediately restored by render
+  const h2=document.querySelector("#dashboardPage .hero h1");if(h2)h2.textContent=map.summary;
+  const ih=document.querySelector("#inventoryPage .hero h1");if(ih)ih.textContent=map.inventory;
+  const sh=document.querySelector("#salesPage .hero h1");if(sh)sh.textContent=map.sales;
+  const rh=document.querySelector("#restockPage .hero h1");if(rh)rh.textContent=map.restock;
+  const hh=document.querySelector("#historyPage .hero h1");if(hh)hh.textContent=map.history;
+  const ip=document.querySelector("#inventoryPage .hero p");if(ip)ip.textContent=map.inventoryDesc;
+  const sp=document.querySelector("#salesPage .hero p");if(sp)sp.textContent=map.salesDesc;
+  const rp=document.querySelector("#restockPage .hero p");if(rp)rp.textContent=map.restockDesc;
+  const hp=document.querySelector("#historyPage .hero p");if(hp)hp.textContent=map.historyDesc;
+}
+async function openProfileModal(){
+  $("profileName").value=state.profile?.name||"";$("profileUsername").value=state.profile?.username||"";$("profileEmail").value=state.user?.email||state.profile?.email||"";$("profilePassword").value="";$('profileModal').classList.remove('hidden');
+}
+async function saveProfile(e){
+  e.preventDefault();
+  const name=$("profileName").value.trim(),username=$("profileUsername").value.trim().toLowerCase(),password=$("profilePassword").value;
+  if(!/^[a-z0-9._-]{3,24}$/.test(username))return toast("El nombre de usuario no es válido.",true);
+  const {error}=await db.from("profiles").update({name,username}).eq("id",state.user.id);
+  if(error){toast(errorText(error),true);return;}
+  if(password){const {error:pe}=await db.auth.updateUser({password});if(pe){toast(errorText(pe),true);return;}}
+  await loadProfile(state.store?.id);render();$("profileModal").classList.add("hidden");toast("Perfil actualizado.");
+}
+async function openEmployeesModal(){
+  if(state.storeRole!=="owner")return;
+  $("employeesModal").classList.remove("hidden");
+  $("employeesList").innerHTML=`<div class="empty">Cargando…</div>`;
+  const {data,error}=await db.from("store_members").select("user_id,role,created_at").eq("store_id",state.store.id).order("created_at");
+  if(error){$("employeesList").innerHTML=`<div class="empty">${esc(errorText(error))}</div>`;return;}
+  const ids=(data||[]).map(x=>x.user_id);let profiles=[];
+  if(ids.length){const r=await db.from("profiles").select("id,username,name,email").in("id",ids);if(r.error){$("employeesList").innerHTML=`<div class="empty">${esc(errorText(r.error))}</div>`;return;}profiles=r.data||[];}
+  $("employeesList").innerHTML=(data||[]).map(m=>{const p=profiles.find(x=>x.id===m.user_id)||{};const self=m.user_id===state.user.id;return `<div class="employee-row"><div class="employee-main"><strong>${esc(p.name||p.username||"Usuario")}${self?" (tú)":""}</strong><span>@${esc(p.username||"—")} · ${esc(p.email||"")}</span></div><select class="role-select" data-member-role="${esc(m.user_id)}" ${self?"disabled":""}><option value="employee" ${m.role==="employee"?"selected":""}>Empleado</option><option value="owner" ${m.role==="owner"?"selected":""}>Jefe</option></select></div>`;}).join("")||`<div class="empty">No hay miembros.</div>`;
+}
+async function changeMemberRole(userId,role){
+  if(!state.store||state.storeRole!=="owner")return;
+  const {error}=await db.rpc("set_store_member_role",{p_store_id:state.store.id,p_user_id:userId,p_role:role});
+  if(error){toast(errorText(error),true);await openEmployeesModal();return;}
+  toast(role==="owner"?"Miembro ascendido a jefe.":"Miembro cambiado a empleado.");await openEmployeesModal();
+}
+async function loadProfile(preferredStoreId=null){
+  const {data,error}=await db.from("profiles").select("*").eq("id",state.user.id).maybeSingle();
+  if(error)throw error;
+  state.profile=data||{};
+  const {data:members,error:me}=await db.from("store_members").select("store_id,role,created_at").eq("user_id",state.user.id).order("created_at",{ascending:true});
+  if(me)throw me;
+  if(!members?.length){state.store=null;state.storeRole=null;state.stores=[];return false;}
+  const {data:stores,error:se}=await db.from("stores").select("*").in("id",members.map(m=>m.store_id));
+  if(se)throw se;
+  const byId=new Map((stores||[]).map(x=>[x.id,x]));
+  state.stores=members.map(m=>({...(byId.get(m.store_id)||{id:m.store_id,name:"Tienda"}),role:m.role,created_at:m.created_at}));
+  const chosen=preferredStoreId?state.stores.find(m=>m.id===preferredStoreId):state.stores.find(m=>m.id===state.store?.id)||state.stores[0];
+  if(!chosen){state.store=null;state.storeRole=null;return false;}
+  state.store=byId.get(chosen.id)||chosen;state.storeRole=chosen.role;return true;
+}
+function renderStorePicker(){
+  const list=$("storePickerList");
+  if(!list)return;
+  if(!state.stores.length){list.innerHTML='<div class="store-empty">No perteneces todavía a ninguna tienda.</div>';return;}
+  list.innerHTML=state.stores.map(st=>`<button type="button" class="store-option" data-select-store="${esc(st.id)}"><div class="store-icon">▦</div><h3>${esc(st.name||"Tienda")}</h3><div class="role">${st.role==='owner'?'Jefe':'Empleado'}</div></button>`).join('');
+}
+function showStorePicker(){
+  $("loginView").classList.add("hidden");$("appView").classList.add("hidden");$("onboardingView").classList.add("hidden");
+  $("storePickerView").classList.remove("hidden");renderStorePicker();
+}
+async function selectStore(storeId){
+  const chosen=state.stores.find(x=>x.id===storeId);
+  if(!chosen)return;
+  state.storeRole=chosen.role;
+  state.store={id:chosen.id,name:chosen.name,...chosen};
+  $("storePickerView").classList.add("hidden");$("appView").classList.remove("hidden");
+  try{await loadData();showPage("dashboardPage");}catch(e){toast(errorText(e),true);showStorePicker();}
+}
+
 async function loadData(){
   if(!state.store)return;
   const sid=state.store.id;
-  const [w,p,s,m]=await Promise.all([
+  const [w,p,s,m,a,pi,cb,dbt,ex]=await Promise.all([
     db.from("warehouses").select("*").eq("store_id",sid).order("created_at"),
-    db.from("products").select("*").eq("store_id",sid).eq("is_active",true).order("name"),
-    db.from("stock").select("*").eq("store_id",sid),
-    db.from("stock_movements").select("*").eq("store_id",sid).order("created_at",{ascending:false}).limit(50)
+    db.from("products").select("*").eq("store_id",sid).order("brand"),
+    // stock se relaciona con la tienda mediante warehouse_id; no tiene store_id.
+    db.from("stock").select("*"),
+    db.from("stock_movements").select("*").eq("store_id",sid).order("created_at",{ascending:false}).limit(50),
+    db.from("inventory_activity").select("*").eq("store_id",sid).order("created_at",{ascending:false}).limit(100),
+    db.from("product_images").select("product_id,image_url").eq("store_id",sid),
+    db.from("cash_boxes").select("*").eq("store_id",sid).order("created_at"),
+    db.from("debts").select("*").eq("store_id",sid).order("created_at",{ascending:false}),
+    db.from("expenses").select("*").eq("store_id",sid).order("created_at",{ascending:false})
   ]);
-  for(const r of [w,p,s,m])if(r.error)throw r.error;
-  state.warehouses=w.data||[];state.products=p.data||[];state.stock=s.data||[];state.movements=m.data||[];
+  for(const r of [w,p,s,m,a,pi,cb,dbt,ex])if(r.error)throw r.error;
+  state.warehouses=w.data||[];state.products=p.data||[];state.stock=s.data||[];state.movements=m.data||[];state.activity=a.data||[];state.productImages=pi.data||[];state.cashBoxes=cb.data||[];state.debts=dbt.data||[];state.expenses=ex.data||[];
+  const userIds=[...new Set([...state.movements,...state.activity].map(x=>x.user_id).filter(Boolean))];
+  state.userProfiles={};
+  if(userIds.length){ const pr=await db.from("profiles").select("id,username,name,email").in("id",userIds); if(!pr.error)(pr.data||[]).forEach(u=>{state.userProfiles[u.id]=u;}); }
   render();
 }
 function qtyFor(pid,wid=null){
@@ -399,45 +753,99 @@ function qtyFor(pid,wid=null){
 }
 function render(){
   $("userChip").textContent=state.profile?.username?`@${state.profile.username}`:state.user.email;
+  $("menuEmployees").classList.toggle("hidden",state.storeRole!=="owner");
   $("welcome").textContent=state.store?`Almacén · ${state.store.name}`:"Crea o configura una tienda en Supabase.";
+  const sw=$("switchStoreBtn");if(sw)sw.classList.toggle("hidden",!(state.stores?.length>1));
   $("statProducts").textContent=state.products.length;
   $("statUnits").textContent=state.products.reduce((a,p)=>a+qtyFor(p.id),0);
-  $("statLow").textContent=state.products.filter(p=>qtyFor(p.id)<=Number(p.min_stock||0)).length;
+  $("statLow").textContent=state.products.filter(p=>qtyFor(p.id)<=Number(p.minimum_stock||0)).length;
   $("statWarehouses").textContent=state.warehouses.length;
   $("dashProducts").innerHTML=state.products.slice(0,4).map(p=>productCard(p,qtyFor(p.id))).join("")||`<div class="empty">No hay productos todavía.</div>`;
   $("productsGrid").innerHTML=filteredProducts().map(p=>productCard(p,qtyFor(p.id))).join("")||`<div class="empty">No hay productos que coincidan.</div>`;
-  fillSelectors();renderMovements();
+  fillSelectors();renderMovements();renderEmployees();renderCashBoxes();renderDebts();renderWarehousesPage();renderExpenses();applyRoleUI();applyLanguage();
 }
 function filteredProducts(){
   const q=($("searchInput")?.value||"").trim().toLocaleLowerCase("es");
-  return state.products.filter(p=>[p.name,p.brand,p.model,p.barcode].some(x=>String(x||"").toLocaleLowerCase("es").includes(q)));
+  return state.products.filter(p=>[p.flavor,p.brand,p.puffs,p.barcode].some(x=>String(x||"").toLocaleLowerCase("es").includes(q)));
 }
 function fillSelectors(){
   const currentProduct=$("movementProduct").value;
-  $("movementProduct").innerHTML=state.products.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} · stock ${qtyFor(p.id)}</option>`).join("");
+  const currentRestockProduct=$("restockProduct")?.value;
+  $("movementProduct").innerHTML=state.products.map(p=>`<option value="${esc(p.id)}">${esc(p.flavor||"Sin sabor")} · ${esc(p.barcode||"—")} · stock ${qtyFor(p.id)}</option>`).join("");
   $("movementWarehouse").innerHTML=state.warehouses.map(w=>`<option value="${esc(w.id)}">${esc(w.name)}</option>`).join("");
+  const currentCashBox=$("movementCashBox").value;
+  $("movementCashBox").innerHTML=state.cashBoxes.map(c=>`<option value="${esc(c.id)}">${esc(c.name)} · ${money(c.balance)}</option>`).join("");
+  if(currentCashBox && state.cashBoxes.some(c=>c.id===currentCashBox)) $("movementCashBox").value=currentCashBox;
+  $("restockProduct").innerHTML=state.products.map(p=>`<option value="${esc(p.id)}">${esc(p.flavor||"Sin sabor")} · ${esc(p.barcode||"—")} · stock ${qtyFor(p.id)}</option>`).join("");
+  $("restockWarehouse").innerHTML=state.warehouses.map(w=>`<option value="${esc(w.id)}">${esc(w.name)}</option>`).join("");
+  $("restockDestinationWarehouse").innerHTML=state.warehouses.map(w=>`<option value="${esc(w.id)}">${esc(w.name)}</option>`).join("");
+  $("pWarehouse").innerHTML=`<option value="">Almacén principal (${esc(state.warehouses[0]?.name||"sin almacenes")})</option>`+state.warehouses.map(w=>`<option value="${esc(w.id)}">${esc(w.name)}</option>`).join("");
   if(currentProduct && state.products.some(p=>p.id===currentProduct))$("movementProduct").value=currentProduct;
+  if(currentRestockProduct && state.products.some(p=>p.id===currentRestockProduct))$("restockProduct").value=currentRestockProduct;
   const selected=state.products.find(p=>p.id===$("movementProduct").value);
   if(selected){
-    $("movementBarcode").value=String(selected.barcode||"");
+    $("movementIdentifier").value=String(selected.barcode||"");
     renderMovementProductInfo(selected);
+    updateMovementTotal();
+  } else {
+    updateMovementTotal();
   }
+  const restockSelected=state.products.find(p=>p.id===$("restockProduct").value);
+  if(restockSelected){$("restockIdentifier").value=String(restockSelected.barcode||"");renderRestockProductInfo(restockSelected);}
 }
 function renderMovements(){
-  const rows=state.movements.map(m=>{
+  const timeline=[...state.movements,...state.activity].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  const rows=timeline.map(m=>{
     const p=state.products.find(x=>x.id===m.product_id);
     const w=state.warehouses.find(x=>x.id===m.warehouse_id);
-    return `<tr><td>${date(m.created_at)}</td><td>${esc(p?.name||m.product_id)}</td><td>${esc(m.movement_type||"")}</td><td>${Number(m.quantity||0)}</td><td>${esc(m.note||"")}</td></tr>`;
+    return `<tr><td>${date(m.created_at)}</td><td>${esc(p?.flavor||m.product_id)}</td><td>${esc(m.activity_type||m.movement_type||"")}</td><td>${Number(m.quantity||0)}</td><td>${esc(m.note||"")}</td></tr>`;
   }).join("");
   $("movementsBody").innerHTML=rows||`<tr><td colspan="5" class="empty">Sin movimientos.</td></tr>`;
-  $("historyBody").innerHTML=state.movements.map(m=>{
+  $("historyBody").innerHTML=timeline.map(m=>{
     const p=state.products.find(x=>x.id===m.product_id),w=state.warehouses.find(x=>x.id===m.warehouse_id);
-    return `<tr><td>${date(m.created_at)}</td><td>${esc(p?.name||"—")}</td><td>${esc(w?.name||"—")}</td><td>${esc(m.movement_type||"")}</td><td>${Number(m.quantity||0)}</td><td>${esc(m.user_id||"—")}</td></tr>`;
+    const u=state.userProfiles[m.user_id]; const username=u?.username ? `@${u.username}` : (u?.name||u?.email||"Usuario");
+    return `<tr><td>${date(m.created_at)}</td><td>${esc(p?.flavor||"—")}</td><td>${esc(w?.name||"—")}</td><td>${esc(m.activity_type||m.movement_type||"")}</td><td>${Number(m.quantity||0)}</td><td>${esc(username)}</td></tr>`;
   }).join("")||`<tr><td colspan="6" class="empty">Sin historial.</td></tr>`;
 }
 
+function isOwner(){return state.storeRole==="owner";}
+function applyRoleUI(){const owner=isOwner();document.querySelectorAll(".owner-only-nav").forEach(x=>x.classList.toggle("hidden",!owner));document.querySelectorAll(".owner-only").forEach(x=>x.classList.toggle("hidden",!owner));document.getElementById("menuEmployees")?.classList.toggle("hidden",!owner);}
+function renderEmployees(){
+  const box=$("employeesList");
+  if(!box)return;
+  if(!isOwner()){box.innerHTML='<div class="permission-note">Solo el jefe puede gestionar empleados.</div>';return;}
+  box.innerHTML='<div class="empty">Cargando empleados...</div>';
+  db.rpc("get_store_members",{p_store_id:state.store.id}).then(({data,error})=>{
+    if(error){box.innerHTML=`<div class="empty">No se pudieron cargar los empleados: ${esc(errorText(error))}</div>`;return;}
+    box.innerHTML=(data||[]).map(m=>{
+      const count=state.movements.filter(x=>x.user_id===m.user_id).length+state.activity.filter(x=>x.user_id===m.user_id).length;
+      return `<article class="card employee-clickable" data-employee-history="${esc(m.user_id)}" data-employee-name="${esc(m.username||m.name||m.email||'Empleado')}"><div class="section-head"><div><h3 style="margin:0">${esc(m.username||m.name||m.email||"Empleado")}${m.user_id===state.user.id?" (tú)":""}</h3><div class="meta">${m.username?`@${esc(m.username)}`:(m.email?esc(m.email):"Sin nombre de usuario")}</div></div><span class="role-badge">${m.role==='owner'?'Jefe':'Empleado'}</span></div><div class="stat"><span>Operaciones realizadas</span><b>${count}</b></div><div class="meta" style="margin-top:10px">Pulsa para ver el historial de este empleado</div>${m.user_id!==state.user.id?`<button class="btn" data-toggle-role="${esc(m.user_id)}" data-current-role="${esc(m.role)}" style="margin-top:12px">${m.role==='owner'?'Hacer empleado':'Hacer jefe'}</button>`:''}</article>`;
+    }).join('')||'<div class="empty">No hay empleados.</div>';
+  });
+}
+async function openEmployeeHistory(userId,displayName){
+  if(!isOwner()||!state.store)return;
+  $("employeeHistoryTitle").textContent=`Historial · ${displayName||"Empleado"}`;
+  $("employeeHistoryMeta").textContent="Solo se muestran los movimientos realizados por este empleado.";
+  $("employeeHistoryBody").innerHTML='<tr><td colspan="6" class="empty">Cargando historial...</td></tr>';
+  $("employeeHistoryModal").classList.remove("hidden");
+  const [m,a]=await Promise.all([
+    db.from("stock_movements").select("*").eq("store_id",state.store.id).eq("user_id",userId).order("created_at",{ascending:false}).limit(200),
+    db.from("inventory_activity").select("*").eq("store_id",state.store.id).eq("user_id",userId).order("created_at",{ascending:false}).limit(200)
+  ]);
+  if(m.error||a.error){$("employeeHistoryBody").innerHTML=`<tr><td colspan="6" class="empty">No se pudo cargar el historial: ${esc(errorText(m.error||a.error))}</td></tr>`;return;}
+  const rows=[...(m.data||[]),...(a.data||[])].sort((x,y)=>new Date(y.created_at)-new Date(x.created_at));
+  $("employeeHistoryBody").innerHTML=rows.map(x=>{const p=state.products.find(q=>q.id===x.product_id),w=state.warehouses.find(q=>q.id===x.warehouse_id);return `<tr><td>${date(x.created_at)}</td><td>${esc(p?.flavor||x.product_id||"—")}</td><td>${esc(w?.name||"—")}</td><td>${esc(x.activity_type||x.movement_type||"Operación")}</td><td>${Number(x.quantity||0)}</td><td>${esc(x.note||"—")}</td></tr>`;}).join("")||'<tr><td colspan="6" class="empty">Este empleado todavía no tiene movimientos registrados.</td></tr>';
+}
+
+function renderCashBoxes(){const box=$("cashBoxesList");if(!box)return;const total=state.cashBoxes.reduce((a,x)=>a+Number(x.balance||0),0);$("cashSummary").innerHTML=`<div class="card stat"><span>Cajas</span><b>${state.cashBoxes.length}</b></div><div class="card stat"><span>Total</span><b>${money(total)}</b></div>`;box.innerHTML=state.cashBoxes.map(c=>`<article class="card"><div class="cash-card"><div><h3 style="margin:0 0 5px">${esc(c.name)}</h3><div class="meta">Saldo actual</div></div><div class="cash-balance">${money(c.balance)}</div></div>${isOwner()?`<button class="btn" data-cash-movement="${esc(c.id)}" style="margin-top:14px">＋ Movimiento</button>`:''}</article>`).join("")||'<div class="empty">No hay cajas creadas.</div>'; }
+function renderWarehousesPage(){const box=$("warehousesCards");if(!box)return;const totalUnits=state.warehouses.reduce((sum,w)=>sum+state.products.reduce((s,p)=>s+qtyFor(p.id,w.id),0),0);$("warehouseSummary").innerHTML=`<div class="card stat"><span>Almacenes</span><b>${state.warehouses.length}</b></div><div class="card stat"><span>Unidades almacenadas</span><b>${totalUnits}</b></div>`;box.innerHTML=state.warehouses.map(w=>{const units=state.products.reduce((sum,p)=>sum+qtyFor(p.id,w.id),0);const products=state.products.filter(p=>qtyFor(p.id,w.id)>0).length;return `<button type="button" class="card" data-open-warehouse="${esc(w.id)}" style="text-align:left;cursor:pointer;width:100%;color:inherit"><div class="cash-card"><div><h3 style="margin:0 0 5px">${esc(w.name||"Sin nombre")}</h3><div class="meta">${esc(w.location||"Sin ubicación indicada")}</div></div><div class="cash-balance">${units}</div></div><div class="meta" style="margin-top:10px">${products} producto${products===1?"":"s"} con stock · Pulsa para ver existencias</div></button>`;}).join("")||'<div class="empty">No hay almacenes creados.</div>'; }
+function renderWarehouseDetail(id){const w=state.warehouses.find(x=>x.id===id);if(!w)return;const rows=state.products.map(p=>{const qty=qtyFor(p.id,w.id);if(qty<=0)return null;const img=imageFor(p.id);return `<div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;padding:10px"><div style="width:58px;height:58px;border-radius:10px;overflow:hidden;background:#080b12;display:grid;place-items:center;flex:0 0 58px">${img?`<img src="${esc(img)}" alt="" style="width:100%;height:100%;object-fit:cover">`:'<span class="noimg">Sin foto</span>'}</div><div style="min-width:0;flex:1"><strong>${esc(p.flavor||'Producto')}</strong><div class="meta">${esc(p.brand||'')} · ${Number(p.puffs||0).toLocaleString('es-ES')} caladas · ID ${esc(p.barcode||'—')}</div></div><strong style="font-size:20px">${qty}</strong></div>`;}).filter(Boolean).join('');const total=state.products.reduce((sum,p)=>sum+qtyFor(p.id,w.id),0);$("warehouseDetailTitle").textContent=w.name||"Almacén";$("warehouseDetailMeta").textContent=`${w.location||"Sin ubicación indicada"} · ${total} unidades`;$("warehouseDetailBody").innerHTML=rows||'<div class="empty">Este almacén no tiene productos con stock.</div>';$('warehouseDetailModal').classList.remove('hidden');}
+function renderDebts(){const pending=state.debts.filter(d=>d.status==='pending');$("debtTotal").textContent=money(pending.reduce((a,d)=>a+Number(d.amount||0),0));$("debtCount").textContent=pending.length;$("debtsBody").innerHTML=state.debts.map(d=>`<tr><td>${esc(d.name)}</td><td>${money(d.amount)}</td><td>${esc(d.start_date)}</td><td>${isOwner()?`<button type="button" class="status-pill ${d.status==='paid'?'status-paid':'status-pending'}" data-toggle-debt="${esc(d.id)}" data-current-status="${esc(d.status)}" title="Pulsar para cambiar el estado" style="border:0;cursor:pointer">${d.status==='paid'?'Pagada':'Pendiente'}</button>`:`<span class="status-pill ${d.status==='paid'?'status-paid':'status-pending'}">${d.status==='paid'?'Pagada':'Pendiente'}</span>`}</td><td></td></tr>`).join("")||'<tr><td colspan="5" class="empty">No hay deudas.</td></tr>';}
+function renderExpenses(){const total=state.expenses.reduce((a,e)=>a+Number(e.amount||0),0);$("expenseSummary").innerHTML=`<div class="card stat"><span>Total de gastos</span><b>${money(total)}</b></div><div class="card stat"><span>Número de gastos</span><b>${state.expenses.length}</b></div>`;$("expensesBody").innerHTML=state.expenses.map(e=>`<tr><td>${esc(e.expense_date||e.created_at?.slice(0,10)||"—")}</td><td>${esc(e.name)}</td><td>${money(e.amount)}</td><td>${esc(e.note||"—")}</td></tr>`).join("")||`<tr><td colspan="4" class="empty">No hay gastos registrados.</td></tr>`;}
 function showPage(id){
-  ["dashboardPage","inventoryPage","salesPage","historyPage"].forEach(x=>$(x).classList.toggle("hidden",x!==id));
+  if(!isOwner() && ["restockPage","expensesPage","employeesPage","debtsPage"].includes(id)) return;
+  ["dashboardPage","inventoryPage","salesPage","restockPage","historyPage","expensesPage","warehousesPage","employeesPage","cashPage","debtsPage"].forEach(x=>$(x).classList.toggle("hidden",x!==id));
   document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));
   window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -500,27 +908,69 @@ function renderCreatedStore(){
   $("joinQr").src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data="+encodeURIComponent(url);
 }
 async function enterStore(){
-  hideOnboarding();$("appView").classList.remove("hidden");
+  hideOnboarding();$("storePickerView").classList.add("hidden");$("appView").classList.remove("hidden");
   try{await loadData();showPage("dashboardPage");}catch(e){toast(errorText(e),true);}
 }
 async function openApp(){
   try{
     const hasStore=await loadProfile();
     if(!hasStore){showOnboarding();return;}
-    hideOnboarding();$("loginView").classList.add("hidden");$("appView").classList.remove("hidden");
-    await loadData();
+    showStorePicker();
   }catch(e){toast(errorText(e),true);}
 }
+
 async function logout(){await db.auth.signOut();location.reload();}
+
+
+applyPreferences();
+$("userChip").onclick=()=>$("profileMenu").classList.toggle("hidden");
+$("menuProfile").onclick=()=>{$("profileMenu").classList.add("hidden");openProfileModal();};
+$("menuSettings").onclick=()=>{$("profileMenu").classList.add("hidden");$("settingsModal").classList.remove("hidden");applyPreferences();};
+$("menuEmployees").onclick=()=>{$("profileMenu").classList.add("hidden");showPage("employeesPage");};
+$("closeProfileModal").onclick=()=>$("profileModal").classList.add("hidden");
+$("closeSettingsModal").onclick=()=>$("settingsModal").classList.add("hidden");
+$("closeEmployeesModal").onclick=()=>$("employeesModal").classList.add("hidden");
+$("closeEmployeeHistoryModal").onclick=()=>$("employeeHistoryModal").classList.add("hidden");
+$("employeeHistoryModal").addEventListener("click",e=>{if(e.target===$("employeeHistoryModal"))$("employeeHistoryModal").classList.add("hidden")});
+$("profileModal").addEventListener("click",e=>{if(e.target===$("profileModal"))$("profileModal").classList.add("hidden")});
+$("settingsModal").addEventListener("click",e=>{if(e.target===$("settingsModal"))$("settingsModal").classList.add("hidden")});
+$("employeesModal").addEventListener("click",e=>{if(e.target===$("employeesModal"))$("employeesModal").classList.add("hidden")});
+$("profileForm").onsubmit=saveProfile;
+document.querySelectorAll("[data-theme-choice]").forEach(b=>b.onclick=()=>setTheme(b.dataset.themeChoice));
+document.querySelectorAll("[data-accent]").forEach(b=>b.onclick=()=>setAccent(b.dataset.accent));
+document.querySelectorAll("[data-lang]").forEach(b=>b.onclick=()=>setLanguage(b.dataset.lang));
+$("deleteStoreBtn").onclick=()=>{if(!isOwner())return;$("profileMenu").classList.add("hidden");$("deleteStoreName").textContent=state.store?.name||"esta tienda";$("deleteStoreConfirm").value="";$("confirmDeleteStore").disabled=true;$("deleteStoreModal").classList.remove("hidden");};
+$("closeDeleteStoreModal").onclick=()=>$("deleteStoreModal").classList.add("hidden");
+$("cancelDeleteStore").onclick=()=>$("deleteStoreModal").classList.add("hidden");
+$("deleteStoreModal").addEventListener("click",e=>{if(e.target===$("deleteStoreModal"))$("deleteStoreModal").classList.add("hidden")});
+$("deleteStoreConfirm").addEventListener("input",e=>{$("confirmDeleteStore").disabled=e.target.value.trim()!=="ELIMINAR";});
+$("confirmDeleteStore").onclick=async()=>{
+  if(!isOwner()||$("deleteStoreConfirm").value.trim()!=="ELIMINAR")return;
+  const storeId=state.store?.id;
+  if(!storeId)return;
+  const btn=$("confirmDeleteStore");btn.disabled=true;btn.textContent="Eliminando…";
+  const {error}=await db.rpc("delete_store_permanently",{p_store_id:storeId});
+  if(error){btn.disabled=false;btn.textContent="Eliminar definitivamente";toast(errorText(error),true);return;}
+  $("deleteStoreModal").classList.add("hidden");
+  toast("Tienda eliminada correctamente.");
+  await db.auth.signOut();
+  setTimeout(()=>location.reload(),400);
+};
+$("employeesList").addEventListener("change",e=>{const el=e.target.closest("[data-member-role]");if(el)changeMemberRole(el.dataset.memberRole,el.value);});
+document.addEventListener("click",e=>{if(!e.target.closest(".profile-wrap"))$("profileMenu")?.classList.add("hidden");});
 
 document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
 $("dashInventory").onclick=()=>showPage("inventoryPage");
 $("searchInput").oninput=()=>render();
-$("newProductBtn").onclick=$("inventoryAdd").onclick=()=>{$("productModal").classList.remove("hidden");};
+function openNewProductModal(){if(!isOwner())return;editingProductId=null;$("productForm").reset();$("pMin").value=0;$("pCurrentStock").value=0;$("pCurrentStock").disabled=false;$("pWarehouse").disabled=false;fillSelectors();$("productModalTitle").textContent="Nuevo producto";$("existingProductNotice").classList.add("hidden");$("createProductBtn").disabled=false;$("createProductBtn").textContent="Crear producto";$("productModal").classList.remove("hidden");setTimeout(()=>$("pIdentifier").focus(),50);}
+function openEditProductModal(id){if(!isOwner())return;const product=state.products.find(p=>p.id===id);if(!product)return;editingProductId=id;$("productForm").reset();fillSelectors();$("productModalTitle").textContent="Editar producto";$("pIdentifier").value=product.barcode||"";$("pBrand").value=product.brand||"";$("pPuffs").value=product.puffs??"";$("pFlavor").value=product.flavor||"";$("pPrice").value=product.price??"";$("pPurchasePrice").value=product.purchase_price??"";$("pMin").value=product.minimum_stock??0;$("pCurrentStock").value=qtyFor(product.id);$("pCurrentStock").disabled=true;$("pWarehouse").disabled=true;$("existingProductNotice").classList.add("hidden");$("createProductBtn").disabled=false;$("createProductBtn").textContent="Guardar cambios";$("productModal").classList.remove("hidden");}
+$("newProductBtn").onclick=$("inventoryAdd").onclick=openNewProductModal;
 $("closeProductModal").onclick=()=>{$("productModal").classList.add("hidden");};
 
 document.addEventListener("click",e=>{
-  const z=e.target.closest("[data-zoom]");if(z){$("modalTitle").textContent=z.dataset.title;$("modalImage").src=z.dataset.zoom;$("modal").classList.remove("hidden");}
+  const z=e.target.closest("[data-zoom]");if(z){$("modalTitle").textContent=z.dataset.title;$("modalImage").src=z.dataset.zoom;$("modal").classList.remove("hidden");return;}
+  const edit=e.target.closest("[data-edit-product]");if(edit){openEditProductModal(edit.dataset.editProduct);return;}
+  const del=e.target.closest("[data-delete-product]");if(del){deleteProduct(del.dataset.deleteProduct);}
 });
 $("closeModal").onclick=()=>$("modal").classList.add("hidden");
 $("modal").addEventListener("click",e=>{if(e.target===$("modal"))$("modal").classList.add("hidden");});
@@ -585,11 +1035,23 @@ $("registerForm").onsubmit=async e=>{
 
 $("loginForm").onsubmit=async e=>{
   e.preventDefault();$("loginError").classList.add("hidden");
-  const {error}=await db.auth.signInWithPassword({email:$("loginEmail").value.trim(),password:$("loginPassword").value});
-  if(error){$("loginError").textContent=errorText(error);$("loginError").classList.remove("hidden");return;}
+  const identity=$("loginIdentity").value.trim();
+  let email=identity;
+  if(!identity.includes("@")){
+    const {data,error:lookupError}=await db.rpc("resolve_login_email",{p_username:identity});
+    if(lookupError||!data){$("loginError").textContent="Credenciales incorrectas.";$("loginError").classList.remove("hidden");return;}
+    email=data;
+  }
+  const {error}=await db.auth.signInWithPassword({email,password:$("loginPassword").value});
+  if(error){$("loginError").textContent="Credenciales incorrectas.";$("loginError").classList.remove("hidden");return;}
   const {data:{session}}=await db.auth.getSession();if(session){state.user=session.user;openApp();}
 };
 
+$("storePickerLogout").onclick=logout;
+$("storePickerCreate").onclick=()=>{showOnboarding();showOnboardingPanel("createStorePanel");};
+$("storePickerJoin").onclick=()=>{showOnboarding();showOnboardingPanel("joinStorePanel");};
+document.addEventListener("click",async e=>{const st=e.target.closest("[data-select-store]");if(st){await selectStore(st.dataset.selectStore);}});
+$("switchStoreBtn").onclick=()=>{if(state.stores.length)showStorePicker();};
 $("chooseCreate").onclick=()=>showOnboardingPanel("createStorePanel");
 $("chooseJoin").onclick=()=>{
   const params=new URLSearchParams(location.search);
@@ -600,6 +1062,7 @@ $("chooseJoin").onclick=()=>{
 $("backChoicesCreate").onclick=()=>showOnboardingPanel("choicePanel");
 $("backChoicesJoin").onclick=()=>showOnboardingPanel("choicePanel");
 $("onboardingLogout").onclick=logout;
+$("appLogout").onclick=logout;
 
 $("createStoreForm").onsubmit=async e=>{
   e.preventDefault();$("onboardingError").classList.add("hidden");
@@ -609,7 +1072,7 @@ $("createStoreForm").onsubmit=async e=>{
   const {data,error}=await db.rpc("create_store_with_access",{p_name:name,p_join_code:code,p_join_password:password});
   if(error){$("onboardingError").textContent=errorText(error);$("onboardingError").classList.remove("hidden");return;}
   state.storeAccess={code,password};
-  await loadProfile();
+  await loadProfile(typeof data === "string" ? data : (data?.store_id||null));
   renderCreatedStore();
   showOnboardingPanel("createdStorePanel");
   $("storeName").value="";
@@ -623,7 +1086,7 @@ $("joinStoreForm").onsubmit=async e=>{
   if(error){$("onboardingError").textContent=errorText(error);$("onboardingError").classList.remove("hidden");return;}
   if(!data?.store_id){$("onboardingError").textContent="No se ha podido completar la unión.";$("onboardingError").classList.remove("hidden");return;}
   history.replaceState({},document.title,window.location.pathname+window.location.hash);
-  await loadProfile();toast("Te has unido a la tienda correctamente.");await enterStore();
+  await loadProfile(data.store_id);toast("Te has unido a la tienda correctamente.");await enterStore();
 };
 
 $("copyJoinLink").onclick=async()=>{
@@ -643,10 +1106,15 @@ $("closeStoreAccess").onclick=()=>$("storeAccessModal").classList.add("hidden");
 $("storeAccessModal").addEventListener("click",e=>{
   if(e.target===$("storeAccessModal"))$("storeAccessModal").classList.add("hidden");
 });
-$("copyAccessJoinLink").onclick=async()=>{
-  try{await navigator.clipboard.writeText($("accessJoinLink").value);toast("Enlace copiado.");}
-  catch{$("accessJoinLink").select();document.execCommand("copy");toast("Enlace copiado.");}
-};
+async function copyText(value,label){
+  try{await navigator.clipboard.writeText(value);toast(label+" copiado.");}
+  catch{
+    const ta=document.createElement("textarea");ta.value=value;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();toast(label+" copiado.");
+  }
+}
+$("copyAccessStoreCode").onclick=()=>copyText($("accessStoreCode").textContent,"ID");
+$("copyAccessStorePassword").onclick=()=>copyText($("accessStorePassword").textContent,"Contraseña");
+$("copyAccessJoinLink").onclick=()=>copyText($("accessJoinLink").value,"Enlace");
 $("openJoinScreen").onclick=()=>{
   $("storeAccessModal").classList.add("hidden");
   showOnboardingPanel("joinStorePanel");
@@ -655,149 +1123,225 @@ $("openJoinScreen").onclick=()=>{
 
 
 
-let barcodeReader=null;
-let barcodeControls=null;
-let barcodeTarget=null;
+function normalizeIdentifier(value){
+  return String(value||"").trim().toLocaleUpperCase("es");
+}
 
-function setMovementProductByBarcode(code){
-  const clean=String(code||"").trim();
-  if(!$("movementBarcode"))return false;
-  $("movementBarcode").value=clean;
-  const product=state.products.find(p=>String(p.barcode||"").trim()===clean);
+function findProductByIdentifier(identifier){
+  const clean=normalizeIdentifier(identifier);
+  if(!clean)return null;
+  return state.products.find(p=>normalizeIdentifier(p.barcode)===clean)||null;
+}
+
+function setMovementProductByIdentifier(identifier, showError=false){
+  const clean=normalizeIdentifier(identifier);
+  $("movementIdentifier").value=clean;
+  const product=findProductByIdentifier(clean);
   if(!product){
-    $("movementProductInfo").classList.add("hidden");
-    toast("No existe ningún producto con ese código de barras.",true);
+    renderMovementProductInfo(null);
+    if(showError)toast("No existe ningún producto con ese identificador.",true);
     return false;
   }
   $("movementProduct").value=product.id;
   renderMovementProductInfo(product);
-  toast(`Producto detectado: ${product.name}`);
+  updateMovementTotal();
   return true;
+}
+
+function fillProductFormFromIdentifier(identifier){
+  const clean=normalizeIdentifier(identifier);
+  const notice=$("existingProductNotice");
+  const submit=$("createProductBtn");
+
+  if(!clean){
+    notice.classList.add("hidden");
+    notice.textContent="";
+    submit.disabled=false;
+    submit.textContent="Crear producto";
+    return null;
+  }
+
+  const product=findProductByIdentifier(clean);
+  if(!product){
+    notice.classList.add("hidden");
+    notice.textContent="";
+    submit.disabled=false;
+    submit.textContent="Crear producto";
+    return null;
+  }
+
+  $("pIdentifier").value=String(product.barcode||clean);
+  $("pBrand").value=product.brand||"";
+  $("pPuffs").value=product.puffs??"";
+  $("pFlavor").value=product.flavor||"";
+  $("pPrice").value=product.price??"";
+  $("pPurchasePrice").value=product.purchase_price??"";
+  $("pMin").value=product.minimum_stock??0;
+
+  notice.textContent=`✓ Este identificador ya existe: ${product.flavor||"producto"}. Sus datos se han cargado automáticamente.`;
+  notice.classList.remove("hidden");
+  submit.disabled=true;
+  submit.textContent="Producto ya registrado";
+  return product;
 }
 
 function renderMovementProductInfo(product){
   const box=$("movementProductInfo");
   if(!product){box.classList.add("hidden");box.innerHTML="";return;}
-  const img=product.image_url
-    ? `<img src="${esc(product.image_url)}" alt="${esc(product.name)}">`
-    : "Sin imagen";
-  box.innerHTML=`<div class="mini-photo">${img}</div><div><strong>${esc(product.name)}</strong><span>${esc(product.brand||"")} · ${esc(product.model||"")} · ${money(product.price)} · Stock: ${qtyFor(product.id)}</span></div>`;
+  const img=imageFor(product.id);
+  box.innerHTML=`${img?`<div class="mini-photo"><img src="${esc(img)}" alt=""></div>`:""}<div><strong>${esc(product.flavor||"Sin sabor")}</strong><span>ID: ${esc(product.barcode||"—")} · ${esc(product.brand||"")} · ${Number(product.puffs||0).toLocaleString("es-ES")} caladas · ${money(product.price)} · Stock: ${qtyFor(product.id)}</span></div>`;
   box.classList.remove("hidden");
 }
-
-function stopBarcodeScanner(){
-  try{barcodeControls?.stop?.();}catch{}
-  barcodeControls=null;
-  try{barcodeReader?.reset?.();}catch{}
-  barcodeReader=null;
-  const video=$("barcodeVideo");
-  if(video?.srcObject){
-    video.srcObject.getTracks().forEach(t=>t.stop());
-    video.srcObject=null;
-  }
-  $("barcodeScannerModal").classList.add("hidden");
+function renderRestockProductInfo(product){
+  const box=$("restockProductInfo");
+  if(!product){box.classList.add("hidden");box.innerHTML="";return;}
+  box.innerHTML=`<div><strong>${esc(product.flavor||"Sin sabor")}</strong><span>ID: ${esc(product.barcode||"—")} · Stock total: ${qtyFor(product.id)}</span></div>`;
+  box.classList.remove("hidden");
+}
+function setRestockProductByIdentifier(value,showError=false){
+  const product=findProductByIdentifier(value);$("restockIdentifier").value=normalizeIdentifier(value);
+  if(!product){renderRestockProductInfo(null);if(showError)toast("No existe ningún producto con ese identificador.",true);return false;}
+  $("restockProduct").value=product.id;renderRestockProductInfo(product);return true;
+}
+function updateRestockMode(){
+  const transfer=$("restockType").value==="transfer";
+  $("restockDestinationField").classList.toggle("hidden",!transfer);
+  $("restockSourceLabel").textContent=transfer?"Almacén de origen":"Almacén";
+  $("restockBtn").textContent=transfer?"Trasladar stock":"Añadir stock";
+}
+async function deleteProduct(productId){
+  const product=state.products.find(p=>p.id===productId);if(!product)return;
+  if(!confirm(`¿Eliminar “${product.flavor||product.barcode||"este producto"}”? Esta acción no se puede deshacer.`))return;
+  const {error}=await db.rpc("delete_product_and_inventory",{p_store_id:state.store.id,p_product_id:productId});
+  if(error){toast(errorText(error),true);return;}
+  toast("Producto eliminado.");await loadData();
 }
 
-async function openBarcodeScanner(target){
-  barcodeTarget=target;
-  $("barcodeScannerModal").classList.remove("hidden");
-  $("scannerStatus").classList.remove("bad");
-  $("scannerStatus").textContent="Solicitando acceso a la cámara…";
-  const video=$("barcodeVideo");
-  try{
-    if(!window.isSecureContext && location.hostname!=="localhost"){
-      throw new Error("La cámara del navegador necesita HTTPS. En GitHub Pages funciona correctamente.");
-    }
-    if(!window.ZXingBrowser?.BrowserMultiFormatReader){
-      throw new Error("No se ha podido cargar el lector de códigos. Comprueba tu conexión a internet.");
-    }
-    barcodeReader=new ZXingBrowser.BrowserMultiFormatReader();
-    const devices=await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
-    if(!devices.length)throw new Error("No se ha encontrado ninguna cámara.");
-    const preferred=devices.find(d=>/back|rear|environment|trasera/i.test(d.label))||devices[devices.length-1];
-    $("scannerStatus").textContent="Apunta la cámara al código de barras…";
-    barcodeControls=await barcodeReader.decodeFromVideoDevice(preferred.deviceId,video,(result,error,controls)=>{
-      if(result){
-        const code=result.getText();
-        if(barcodeTarget==="product"){
-          $("pBarcode").value=code;
-          stopBarcodeScanner();
-          toast(`Código detectado: ${code}`);
-        }else if(barcodeTarget==="movement"){
-          const found=setMovementProductByBarcode(code);
-          if(found)stopBarcodeScanner();
-        }
-      }
-    });
-  }catch(e){
-    $("scannerStatus").textContent=errorText(e);
-    $("scannerStatus").classList.add("bad");
-    try{barcodeControls?.stop?.();}catch{}
-  }
-}
-
-$("closeBarcodeScanner").onclick=stopBarcodeScanner;
-$("barcodeScannerModal").addEventListener("click",e=>{
-  if(e.target===$("barcodeScannerModal"))stopBarcodeScanner();
-});
-$("scanProductBarcode").onclick=()=>openBarcodeScanner("product");
-$("scanMovementBarcode").onclick=()=>openBarcodeScanner("movement");
-
-$("movementBarcode").addEventListener("input",()=>{
-  const code=$("movementBarcode").value.trim();
-  if(!code){renderMovementProductInfo(null);return;}
-  const product=state.products.find(p=>String(p.barcode||"").trim()===code);
+$("movementIdentifier").addEventListener("input",()=>{
+  const value=$("movementIdentifier").value;
+  const product=setMovementProductByIdentifier(value);
   if(product){
     $("movementProduct").value=product.id;
-    renderMovementProductInfo(product);
+    updateMovementTotal();
   }
 });
+
+$("movementIdentifier").addEventListener("change",()=>{
+  setMovementProductByIdentifier($("movementIdentifier").value,true);
+});
+
 $("movementProduct").addEventListener("change",()=>{
   const product=state.products.find(p=>p.id===$("movementProduct").value);
   if(product){
-    $("movementBarcode").value=String(product.barcode||"");
+    $("movementIdentifier").value=String(product.barcode||"");
     renderMovementProductInfo(product);
+    updateMovementTotal();
   }else renderMovementProductInfo(null);
 });
 
+$("restockIdentifier").addEventListener("input",()=>setRestockProductByIdentifier($("restockIdentifier").value));
+$("restockIdentifier").addEventListener("change",()=>setRestockProductByIdentifier($("restockIdentifier").value,true));
+$("restockProduct").addEventListener("change",()=>{const p=state.products.find(x=>x.id===$("restockProduct").value);if(p){$("restockIdentifier").value=p.barcode||"";renderRestockProductInfo(p);}});
+$("restockType").addEventListener("change",updateRestockMode);
+
+function updateMovementTotal(){
+  const product=state.products.find(p=>p.id===$("movementProduct").value);
+  const qty=Math.max(0,Number($("movementQty").value)||0);
+  const total=Number(product?.price||0)*qty;
+  $("movementTotal").innerHTML=`<strong>${money(total)}</strong><span style="margin-left:8px;color:var(--muted)">${money(Number(product?.price||0))} × ${qty||0}</span>`;
+}
+$("movementQty").addEventListener("input",updateMovementTotal);
+
 $("movementBtn").onclick=async()=>{
   if(!state.store)return toast("No hay tienda configurada.",true);
-  const pid=$("movementProduct").value,wid=$("movementWarehouse").value,type=$("movementType").value;
+  const pid=$("movementProduct").value,wid=$("movementWarehouse").value,cashBoxId=$("movementCashBox").value;
   const qty=Number($("movementQty").value),note=$("movementNote").value.trim();
-  if(!pid||!wid||!Number.isInteger(qty)||qty<1)return toast("Revisa producto, almacén y cantidad.",true);
-  const {error}=await db.rpc("adjust_stock",{p_product_id:pid,p_warehouse_id:wid,p_quantity:type==="in"?qty:-qty,p_reason:note||"Movimiento manual"});
+  if(!pid||!wid||!cashBoxId||!Number.isInteger(qty)||qty<1)return toast("Revisa producto, almacén, caja y cantidad.",true);
+  if(qty>qtyFor(pid,wid))return toast(`No hay stock suficiente en este almacén. Disponible: ${qtyFor(pid,wid)}.`,true);
+  const product=state.products.find(p=>p.id===pid);
+  const total=Number(product?.price||0)*qty;
+  if(total<=0)return toast("El producto debe tener un precio mayor que 0 para registrar la entrada en caja.",true);
+  const {error}=await db.rpc("register_inventory_sale_with_cash",{p_store_id:state.store.id,p_warehouse_id:wid,p_product_id:pid,p_quantity:qty,p_cash_box_id:cashBoxId,p_note:note||null});
   if(error){toast(errorText(error),true);return;}
-  $("movementQty").value=1;$("movementNote").value="";toast("Movimiento registrado.");await loadData();
+  $("movementQty").value=1;$("movementNote").value="";toast(`Operación registrada. ${money(total)} añadidos a la caja seleccionada.`);await loadData();updateMovementTotal();
 };
 
+$("restockBtn").onclick=async()=>{
+  if(!isOwner())return toast("Solo el jefe puede reponer stock.",true);
+  if(!state.store)return toast("No hay tienda configurada.",true);
+  const pid=$("restockProduct").value,source=$("restockWarehouse").value,destination=$("restockDestinationWarehouse").value,qty=Number($("restockQty").value),note=$("restockNote").value.trim();
+  if(!pid||!source||!Number.isInteger(qty)||qty<1)return toast("Revisa producto, almacén y cantidad.",true);
+  if($("restockType").value==="transfer"){
+    if(!destination||source===destination)return toast("Selecciona un almacén de destino diferente.",true);
+    if(qty>qtyFor(pid,source))return toast(`No hay stock suficiente en el almacén de origen. Disponible: ${qtyFor(pid,source)}.`,true);
+    const {error}=await db.rpc("transfer_stock",{p_store_id:state.store.id,p_product_id:pid,p_source_warehouse_id:source,p_destination_warehouse_id:destination,p_quantity:qty,p_note:note||null});
+    if(error){toast(errorText(error),true);return;}
+    toast("Stock trasladado correctamente.");
+  }else{
+    const {error}=await db.rpc("apply_stock_change",{p_product_id:pid,p_warehouse_id:source,p_quantity:qty,p_reason:note||"Reposición de stock"});
+    if(error){toast(errorText(error),true);return;}
+    toast("Stock añadido correctamente.");
+  }
+  $("restockQty").value=1;$("restockNote").value="";await loadData();
+};
+
+$("pIdentifier").addEventListener("input",()=>{if(!editingProductId)fillProductFormFromIdentifier($("pIdentifier").value);});
+
 $("productForm").onsubmit=async e=>{
-  e.preventDefault();if(!state.store)return toast("No hay tienda configurada.",true);
-  let imageUrl=null;
-  const file=$("pImage").files[0];
+  e.preventDefault();
+  if(!isOwner())return toast("Solo el jefe puede gestionar productos.",true);
+  if(!state.store)return toast("No hay tienda configurada.",true);
   try{
-    if(file){
-      if(file.size>5*1024*1024)throw new Error("La imagen no puede superar 5 MB.");
-      const safe=file.name.toLowerCase().replace(/[^a-z0-9._-]/g,"-");
-      const path=`${state.store.id}/${crypto.randomUUID()}-${safe}`;
-      const up=await db.storage.from("product-images").upload(path,file,{contentType:file.type,upsert:false});
-      if(up.error){
-        if(/bucket not found/i.test(errorText(up.error))){
-          throw new Error("No existe el bucket «product-images» en Supabase. Ejecuta la migración de almacenamiento incluida con este archivo y vuelve a intentarlo.");
-        }
-        throw up.error;
-      }
-      imageUrl=db.storage.from("product-images").getPublicUrl(path).data.publicUrl;
+    const wasEditing=Boolean(editingProductId);
+    const identifier=normalizeIdentifier($("pIdentifier").value);
+    if(!identifier)throw new Error("El identificador del producto es obligatorio.");
+    const existing=findProductByIdentifier(identifier);
+    if(existing&&existing.id!==editingProductId)throw new Error("Ese identificador ya pertenece a un producto.");
+
+    const fields={brand:$("pBrand").value.trim(),puffs:Number($("pPuffs").value),flavor:$("pFlavor").value.trim(),price:Number($("pPrice").value),purchase_price:$("pPurchasePrice").value===""?null:Number($("pPurchasePrice").value),barcode:identifier,minimum_stock:Number($("pMin").value||0)};
+    let productId=editingProductId;
+    if(editingProductId){
+      const {error}=await db.from("products").update(fields).eq("id",editingProductId).eq("store_id",state.store.id);
+      if(error)throw error;
+    }else{
+      const initialStock=Number($("pCurrentStock").value||0);
+      if(!Number.isInteger(initialStock)||initialStock<0)throw new Error("El stock actual debe ser un número entero igual o mayor que cero.");
+      const warehouseId=$("pWarehouse").value||state.warehouses[0]?.id;
+      if(initialStock>0&&!warehouseId)throw new Error("Crea o selecciona un almacén antes de registrar stock inicial.");
+
+      const {data:created,error}=await db.rpc("create_product_with_stock",{
+        p_store_id:state.store.id,p_brand:fields.brand,p_puffs:fields.puffs,p_flavor:fields.flavor,p_price:fields.price,p_purchase_price:fields.purchase_price,p_barcode:fields.barcode,p_minimum_stock:fields.minimum_stock,p_initial_stock:initialStock,p_warehouse_id:warehouseId||null
+      });
+      if(error)throw error;
+      productId=typeof created==="string"?created:created?.id;
+      if(!productId)throw new Error("El producto se creó, pero no se recibió su identificador.");
     }
-    const {error}=await db.rpc("create_product",{
-      p_store_id:state.store.id,p_brand:$("pBrand").value.trim(),p_model:$("pModel").value.trim(),
-      p_name:$("pName").value.trim(),p_price:Number($("pPrice").value),p_barcode:$("pBarcode").value.trim()||null,
-      p_min_stock:Number($("pMin").value||0),p_image_url:imageUrl
-    });
-    if(error)throw error;
-    $("productForm").reset();$("productModal").classList.add("hidden");toast("Producto creado.");await loadData();
+    const file=$("pImage").files?.[0];
+    if(file && productId){
+      const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
+      const path=`${state.store.id}/${productId}.${ext}`;
+      const up=await db.storage.from("product-images").upload(path,file,{upsert:true,contentType:file.type||"image/jpeg"});
+      if(up.error)throw new Error("Producto creado, pero no se pudo subir la imagen: "+up.error.message);
+      const publicUrl=db.storage.from("product-images").getPublicUrl(path).data.publicUrl;
+      if(editingProductId){const old=await db.from("product_images").delete().eq("store_id",state.store.id).eq("product_id",productId);if(old.error)throw old.error;}
+      const ins=await db.from("product_images").insert({store_id:state.store.id,product_id:productId,image_url:publicUrl});
+      if(ins.error)throw new Error("Producto creado, pero no se pudo guardar la imagen: "+ins.error.message);
+    }
+
+    $("productForm").reset();
+    $("pMin").value=0;$("pCurrentStock").value=0;editingProductId=null;
+    $("existingProductNotice").classList.add("hidden");
+    $("createProductBtn").disabled=false;
+    $("createProductBtn").textContent="Crear producto";
+    $("productModal").classList.add("hidden");
+    toast(wasEditing?"Producto actualizado.":"Producto creado.");
+    await loadData();
   }catch(err){toast(errorText(err),true);}
 };
 
+$("userChip").onclick=()=>$("profileMenu").classList.toggle("hidden");document.addEventListener("click",e=>{if(!e.target.closest("#userChip")&&!e.target.closest("#profileMenu"))$("profileMenu").classList.add("hidden");});$("menuEmployees").onclick=()=>{if(isOwner()){$("profileMenu").classList.add("hidden");showPage("employeesPage");}};$("appLogout").onclick=logout;
+$("closeWarehouseDetailModal").onclick=()=>$("warehouseDetailModal").classList.add("hidden");
+$("newCashBoxBtn").onclick=()=>{if(!isOwner())return;$("cashBoxForm").reset();$("cashBoxModal").classList.remove("hidden");};$("closeCashBoxModal").onclick=()=>$("cashBoxModal").classList.add("hidden");$("cashBoxForm").onsubmit=async e=>{e.preventDefault();const {error}=await db.rpc("create_cash_box",{p_store_id:state.store.id,p_name:$("cashBoxName").value.trim()});if(error)return toast(errorText(error),true);$("cashBoxModal").classList.add("hidden");toast("Caja creada.");await loadData();};$("closeCashMovementModal").onclick=()=>$("cashMovementModal").classList.add("hidden");$("cashMovementForm").onsubmit=async e=>{e.preventDefault();const {error}=await db.rpc("add_cash_box_movement",{p_cash_box_id:$("cashMovementBox").value,p_type:$("cashMovementType").value,p_amount:Number($("cashMovementAmount").value),p_note:$("cashMovementNote").value.trim()||null});if(error)return toast(errorText(error),true);$("cashMovementModal").classList.add("hidden");toast("Movimiento guardado.");await loadData();};$("newDebtBtn").onclick=()=>{if(!isOwner())return;$("debtForm").reset();$("debtStartDate").value=new Date().toISOString().slice(0,10);$("debtModal").classList.remove("hidden");};$("closeDebtModal").onclick=()=>$("debtModal").classList.add("hidden");$("debtForm").onsubmit=async e=>{e.preventDefault();const {error}=await db.rpc("create_debt",{p_store_id:state.store.id,p_name:$("debtName").value.trim(),p_amount:Number($("debtAmount").value),p_start_date:$("debtStartDate").value});if(error)return toast(errorText(error),true);$("debtModal").classList.add("hidden");toast("Deuda añadida.");await loadData();renderDebts();};$("newWarehouseBtn").onclick=()=>{if(!isOwner())return;$("warehouseForm").reset();$("warehouseModal").classList.remove("hidden");};$("closeWarehouseModal").onclick=()=>$("warehouseModal").classList.add("hidden");$("warehouseForm").onsubmit=async e=>{e.preventDefault();if(!isOwner())return;const name=$("warehouseName").value.trim(),location=$("warehouseLocation").value.trim();if(!name)return;const {error}=await db.rpc("create_warehouse",{p_store_id:state.store.id,p_name:name,p_location:location||null});if(error)return toast(errorText(error),true);$("warehouseModal").classList.add("hidden");toast("Almacén creado.");await loadData();};;$("newExpenseBtn").onclick=()=>{if(!isOwner())return;$("expenseForm").reset();$("expenseDate").value=new Date().toISOString().slice(0,10);$("expenseModal").classList.remove("hidden")};$("closeExpenseModal").onclick=()=>$("expenseModal").classList.add("hidden");$("expenseForm").onsubmit=async e=>{e.preventDefault();if(!isOwner())return;const {error}=await db.rpc("create_expense",{p_store_id:state.store.id,p_name:$("expenseName").value.trim(),p_amount:Number($("expenseAmount").value),p_expense_date:$("expenseDate").value,p_note:$("expenseNote").value.trim()||null});if(error)return toast(errorText(error),true);$("expenseModal").classList.add("hidden");toast("Gasto guardado.");await loadData();};document.addEventListener("click",async e=>{const wh=e.target.closest("[data-open-warehouse]");if(wh){renderWarehouseDetail(wh.dataset.openWarehouse);return;}const b=e.target.closest("[data-cash-movement]");if(b){$("cashMovementForm").reset();$("cashMovementBox").value=b.dataset.cashMovement;$("cashMovementModal").classList.remove("hidden");return;}const d=e.target.closest("[data-toggle-debt]");if(d){if(!isOwner())return;const nextStatus=d.dataset.currentStatus==='paid'?'pending':'paid';const {error}=await db.rpc("set_debt_status",{p_debt_id:d.dataset.toggleDebt,p_status:nextStatus});if(error)return toast(errorText(error),true);toast(nextStatus==='paid'?"Deuda marcada como pagada.":"Deuda marcada como pendiente.");await loadData();return;}const emp=e.target.closest("[data-employee-history]");if(emp&&!e.target.closest("[data-toggle-role]")){openEmployeeHistory(emp.dataset.employeeHistory,emp.dataset.employeeName);return;}const r=e.target.closest("[data-toggle-role]");if(r){const newRole=r.dataset.currentRole==='owner'?'employee':'owner';const {error}=await db.rpc("set_member_role",{p_store_id:state.store.id,p_user_id:r.dataset.toggleRole,p_role:newRole});if(error)return toast(errorText(error),true);toast("Rol actualizado.");await loadData();}});
 (async()=>{
   const params=new URLSearchParams(location.search);
   const {data:{session}}=await db.auth.getSession();
@@ -807,6 +1351,8 @@ $("productForm").onsubmit=async e=>{
     if(params.get("join")){
       $("joinStoreCode").value=params.get("join");
       $("joinStorePassword").value=params.get("key")||"";
+      $("storePickerView").classList.add("hidden");
+      showOnboardingPanel("joinStorePanel");$("onboardingView").classList.remove("hidden");
     }
   }
   db.auth.onAuthStateChange(async(_event,session)=>{
