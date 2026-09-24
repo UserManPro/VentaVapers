@@ -241,11 +241,100 @@
       .nav .ico{font-size:19px}
     }
 
+
+    /* v16: portal público + administrador */
+    .public-shell{min-height:100vh;padding:18px clamp(14px,4vw,48px) 48px}
+    .public-top{max-width:1240px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 0 26px}
+    .public-brand{font-size:24px;font-weight:950;letter-spacing:-.055em}.public-brand span{color:var(--accent2)}
+    .public-search-wrap{max-width:900px;margin:clamp(30px,7vh,90px) auto 28px;text-align:center}
+    .public-search-wrap h1{font-size:clamp(34px,6vw,64px);letter-spacing:-.065em;margin:0 0 10px}
+    .public-search-wrap p{color:var(--muted);margin:0 0 24px}
+    .public-search{display:flex;gap:10px;max-width:760px;margin:auto}.public-search input{flex:1;min-width:0}
+    .public-stores{max-width:1240px;margin:30px auto 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+    .public-store-card{display:block;text-align:left;text-decoration:none;color:inherit;cursor:pointer}
+    .public-store-card h3{margin:0 0 7px;font-size:19px}.public-store-card p{margin:0;color:var(--muted);font-size:13px}
+    .public-store-card .store-icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,#7c5cff25,#22d3ee18);border:1px solid #7c5cff44;color:#dcd6ff;font-size:23px;margin-bottom:15px}
+    .public-store-card:hover{transform:translateY(-2px);border-color:#7c5cff66}
+    .public-empty{text-align:center;color:var(--muted);padding:50px 20px;grid-column:1/-1}
+    .public-detail{max-width:1240px;margin:30px auto}.public-detail-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:20px}.public-detail-head h1{margin:0;font-size:clamp(30px,5vw,48px);letter-spacing:-.05em}
+    .public-products{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.public-product{overflow:hidden;padding:0;display:flex;flex-direction:column;background:#0d111c!important}.public-product-photo{height:240px;flex:0 0 240px;background:#080b12;display:grid;place-items:center;overflow:hidden}.public-product-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}.public-product-body{position:relative;z-index:2;flex:1;padding:15px;background:#0d111c;color:#f5f7fb;border-top:1px solid #ffffff0b}.public-product-body .tag{background:#7c5cff18;color:#b9afff}.public-product-body .meta{color:#aab5c7}.public-product h3{margin:9px 0 3px;color:#fff}.public-price{font-size:20px;font-weight:900;margin-top:10px;color:#fff}.public-stock{margin-top:8px;color:#b7c2d4}.public-stock strong{color:var(--ok)}
+    .public-catalog-layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:18px;align-items:start}.public-filters{position:sticky;top:18px;padding:16px;background:#0d111c;border:1px solid var(--line);border-radius:18px;box-shadow:0 14px 40px #0004}.public-filters-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}.public-filters h3{margin:0;font-size:15px}.public-filter-group{border-top:1px solid #ffffff0a;padding-top:14px;margin-top:14px}.public-filter-group:first-of-type{border-top:0;padding-top:0;margin-top:0}.public-filter-title{font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}.public-filter-list{display:grid;gap:6px;max-height:180px;overflow:auto;padding-right:3px}.public-filter-option{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:10px;color:#dce2ed;font-size:13px;cursor:pointer}.public-filter-option:hover{background:#ffffff08}.public-filter-option input{accent-color:var(--accent)}.public-filter-search{width:100%;margin-bottom:4px}.public-filter-mobile{display:none}.public-filter-count{margin-left:auto;color:var(--muted);font-size:11px}.public-filter-clear{font-size:11px;padding:7px 9px}.public-results-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.public-results-bar .hint{margin:0}.public-products{min-width:0}
+    .admin-wrap{min-height:100vh;padding:20px}.admin-shell{max-width:1100px;margin:0 auto}.admin-head{display:flex;justify-content:space-between;align-items:center;gap:14px;margin:18px 0 24px}.admin-title{font-size:clamp(30px,5vw,48px);letter-spacing:-.05em;margin:0}.admin-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}.admin-key{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px;border:1px solid var(--line);border-radius:15px;background:#0b1019}.admin-key code{font-size:15px;color:#d9d2ff}.admin-key small{color:var(--muted)}.admin-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .login-back{display:flex;justify-content:flex-end;margin-bottom:10px}.login-back .btn{width:auto;margin:0}
+    @media(max-width:1000px){.public-stores,.public-products{grid-template-columns:repeat(3,minmax(0,1fr))}.public-catalog-layout{grid-template-columns:220px minmax(0,1fr)}}
+    @media(max-width:760px){.public-catalog-layout{display:block}.public-filters{position:fixed;z-index:80;left:12px;right:12px;top:auto;bottom:12px;max-height:75vh;overflow:auto;transform:translateY(calc(100% + 30px));transition:transform .2s ease}.public-filters.open{transform:translateY(0)}.public-filter-mobile{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.public-filter-mobile .btn{width:auto}.public-results-bar{margin-bottom:10px}.public-products{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+    @media(max-width:760px){.public-top{padding-bottom:12px}.public-search-wrap{margin-top:30px}.public-search{display:grid;grid-template-columns:1fr}.public-stores,.public-products{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-grid{grid-template-columns:1fr}.public-detail-head{display:block}.public-detail-head .btn{margin-top:12px}}
+    @media(max-width:500px){.public-shell{padding:12px 12px 30px}.public-brand{font-size:20px}.public-stores,.public-products{grid-template-columns:1fr}.public-product-photo{height:300px;flex-basis:300px}.public-product-body{padding:14px 15px 16px}.admin-head{align-items:flex-start;flex-direction:column}}
   </style>
 </head>
 <body>
-<div id="loginView" class="login-wrap">
+<div id="publicView" class="public-shell">
+  <header class="public-top">
+    <div class="public-brand">NIGHT<span>STOCK</span></div>
+    <button class="btn primary" id="publicLoginBtn" type="button">Iniciar sesión</button>
+  </header>
+  <section class="public-search-wrap">
+    <h1>Encuentra una tienda</h1>
+    <p>Busca una tienda y consulta sus productos, precios y disponibilidad.</p>
+    <div class="public-search">
+      <input class="search" id="publicStoreSearch" placeholder="Buscar tienda..." autocomplete="off">
+      <button class="btn" id="publicSearchBtn" type="button">Buscar</button>
+    </div>
+  </section>
+  <section id="publicStoreList" class="public-stores"></section>
+</div>
+
+<div id="publicStoreView" class="public-shell hidden">
+  <header class="public-top">
+    <div class="public-brand">NIGHT<span>STOCK</span></div>
+    <button class="btn" id="publicBackBtn" type="button">← Todas las tiendas</button>
+  </header>
+  <main class="public-detail">
+    <div class="public-detail-head">
+      <div><h1 id="publicStoreTitle">Tienda</h1><p id="publicStoreMeta" class="hint" style="margin:8px 0 0"></p></div>
+    </div>
+    <div class="public-catalog-layout">
+      <aside id="publicFilters" class="public-filters">
+        <div class="public-filter-mobile"><strong>Filtros</strong><button class="btn ghost" id="closePublicFilters" type="button">Cerrar</button></div>
+        <div class="public-filters-head"><h3>Filtrar productos</h3><button class="btn ghost public-filter-clear" id="clearPublicFilters" type="button">Limpiar</button></div>
+        <input class="search public-filter-search" id="publicProductSearch" placeholder="Buscar producto..." autocomplete="off">
+        <div class="public-filter-group"><div class="public-filter-title">Marca</div><div id="publicBrandFilters" class="public-filter-list"></div></div>
+        <div class="public-filter-group"><div class="public-filter-title">Caladas</div><div id="publicPuffsFilters" class="public-filter-list"></div></div>
+        <div class="public-filter-group"><div class="public-filter-title">Disponibilidad</div><label class="public-filter-option"><input id="publicOnlyAvailable" type="checkbox"><span>Solo disponibles</span></label></div>
+      </aside>
+      <section>
+        <div class="public-results-bar"><p id="publicResultsMeta" class="hint"></p><button class="btn public-filter-mobile" id="openPublicFilters" type="button">☰ Filtros</button></div>
+        <div id="publicProductList" class="public-products"></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div id="adminView" class="admin-wrap hidden">
+  <div class="admin-shell">
+    <header class="admin-head">
+      <div><div class="brand">NIGHT<span>STOCK</span> ADMIN</div><h1 class="admin-title">Panel de administración</h1><p class="hint">Control de tiendas y claves de creación.</p></div>
+      <div class="admin-actions"><button class="btn" id="adminHomeBtn" type="button">Ver web pública</button><button class="btn ghost" id="adminLogout" type="button">Cerrar sesión</button></div>
+    </header>
+    <div id="adminError" class="notice hidden"></div>
+    <div class="admin-grid">
+      <section class="card">
+        <div class="section-head"><h2>Claves de creación</h2><button class="btn primary" id="createKeyBtn" type="button">＋ Crear clave</button></div>
+        <p class="hint" style="margin-top:0">Cada clave permite crear una sola tienda. Cuando generes una, guárdala y pásasela al usuario.</p><div id="adminNewKey" class="notice hidden"></div>
+        <div id="adminKeysList"></div>
+      </section>
+      <section class="card">
+        <div class="section-head"><h2>Tiendas</h2><span class="tag" id="adminStoreCount">0</span></div>
+        <div id="adminStoresList"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div id="loginView" class="login-wrap hidden">
   <div class="login">
+    <div class="login-back"><button class="btn ghost" id="backPublicBtn" type="button">← Volver a la web</button></div>
     <div class="brand">NIGHT<span>STOCK</span></div>
     <h1>Tu inventario.</h1>
     <p>Gestión sencilla, rápida y pensada para móvil.</p>
@@ -329,8 +418,9 @@
       <button class="btn ghost back-btn" id="backChoicesCreate" type="button">← Volver</button>
       <div class="card">
         <h2 style="margin-top:0">Crear tienda</h2>
-        <p class="hint" style="margin-top:0">El ID y la contraseña se generan automáticamente. Guarda ambos para compartirlos con tus trabajadores.</p>
+        <p class="hint" style="margin-top:0">Necesitas una clave de creación proporcionada por el Administrador. El ID y la contraseña de la tienda se generan automáticamente.</p>
         <form id="createStoreForm">
+          <div class="field"><label>Clave de creación</label><input id="storeCreationKey" placeholder="Ej. NS-XXXX-XXXX" autocomplete="off" required></div>
           <div class="field"><label>Nombre de la tienda</label><input id="storeName" placeholder="Ej. Mi tienda" required maxlength="80"></div>
           <button class="btn primary" type="submit">Crear tienda y generar acceso</button>
         </form>
@@ -443,7 +533,7 @@
         <div class="field identifier-field"><label>Identificador del producto</label><input id="restockIdentifier" autocomplete="off" placeholder="Ej. 15-1"></div>
         <div id="restockProductInfo" class="product-info hidden"></div>
         <div class="row"><div class="field"><label>Producto</label><select id="restockProduct"></select></div><div class="field"><label>Tipo</label><select id="restockType"><option value="restock">Añadir stock</option><option value="transfer">Trasladar desde otro almacén</option></select></div></div>
-        <div class="row"><div class="field"><label id="restockSourceLabel">Almacén</label><select id="restockWarehouse"></select></div><div class="field hidden" id="restockDestinationField"><label>Almacén de destino</label><select id="restockDestinationWarehouse"></select></div></div>
+        <div class="row"><div class="field"><label id="restockSourceLabel">Almacén</label><select id="restockWarehouse"></select></div><div class="field hidden" id="restockDestinationField"><label>Almacén de destino</label><select id="rpZEAWYtiB6bJ16NuLbGCc6CZ6jJdKfb63"></select></div></div>
         <div class="field"><label>Cantidad</label><input id="restockQty" type="number" min="1" step="1" value="1"></div>
         <div class="field"><label>Nota</label><input id="restockNote" placeholder="Motivo o referencia (opcional)"></div>
         <button class="btn primary" id="restockBtn" type="button">Añadir stock</button>
@@ -602,7 +692,7 @@ const db = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
 });
 
-let state={user:null,profile:null,store:null,storeRole:null,storeAccess:null,stores:[],warehouses:[],products:[],stock:[],movements:[],activity:[],productImages:[],cashBoxes:[],debts:[],expenses:[],userProfiles:{}};
+let state={user:null,profile:null,store:null,storeRole:null,storeAccess:null,isAdmin:false,stores:[],warehouses:[],products:[],stock:[],movements:[],activity:[],productImages:[],cashBoxes:[],debts:[],expenses:[],userProfiles:{}};
 let editingProductId=null;
 let currentLanguage=localStorage.getItem("nightstock_language")||"es";
 let currentTheme=localStorage.getItem("nightstock_theme")||"dark";
@@ -812,7 +902,7 @@ function fillSelectors(){
   if(currentCashBox && state.cashBoxes.some(c=>c.id===currentCashBox)) $("movementCashBox").value=currentCashBox;
   $("restockProduct").innerHTML=state.products.map(p=>`<option value="${esc(p.id)}">${esc(p.flavor||"Sin sabor")} · ${esc(p.barcode||"—")} · stock ${qtyFor(p.id)}</option>`).join("");
   $("restockWarehouse").innerHTML=state.warehouses.map(w=>`<option value="${esc(w.id)}">${esc(w.name)}</option>`).join("");
-  $("restockDestinationWarehouse").innerHTML=state.warehouses.map(w=>`<option value="${esc(w.id)}">${esc(w.name)}</option>`).join("");
+  $("rpZEAWYtiB6bJ16NuLbGCc6CZ6jJdKfb63").innerHTML=state.warehouses.map(w=>`<option value="${esc(w.id)}">${esc(w.name)}</option>`).join("");
   $("pWarehouse").innerHTML=`<option value="">Almacén principal (${esc(state.warehouses[0]?.name||"sin almacenes")})</option>`+state.warehouses.map(w=>`<option value="${esc(w.id)}">${esc(w.name)}</option>`).join("");
   if(currentProduct && state.products.some(p=>p.id===currentProduct))$("movementProduct").value=currentProduct;
   if(currentRestockProduct && state.products.some(p=>p.id===currentRestockProduct))$("restockProduct").value=currentRestockProduct;
@@ -903,7 +993,7 @@ function storeRandomCode(){
   return out;
 }
 function storeRandomPassword(){
-  const chars="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+  const chars="ABCDEFGHJKLMNDcJHrrHSgvFpsYxqb6g97uaQTd2kE31rPUeDZTeDsjVq";
   let out="";for(let i=0;i<14;i++)out+=chars[Math.floor(Math.random()*chars.length)];
   return out;
 }
@@ -947,6 +1037,8 @@ async function enterStore(){
 }
 async function openApp(){
   try{
+    const {data:admin,error:ae}=await db.rpc("is_admin");
+    if(!ae && admin){await openAdmin();return;}
     const hasStore=await loadProfile();
     if(!hasStore){showOnboarding();return;}
     showStorePicker();
@@ -1008,6 +1100,109 @@ document.addEventListener("click",e=>{
 });
 $("closeModal").onclick=()=>$("modal").classList.add("hidden");
 $("modal").addEventListener("click",e=>{if(e.target===$("modal"))$("modal").classList.add("hidden");});
+
+
+async function showPublicHome(){
+  $("publicView").classList.remove("hidden");
+  $("publicStoreView").classList.add("hidden");
+  $("loginView").classList.add("hidden");
+  $("adminView").classList.add("hidden");
+  $("storePickerView").classList.add("hidden");
+  $("onboardingView").classList.add("hidden");
+  $("appView").classList.add("hidden");
+  await loadPublicStores();
+}
+async function loadPublicStores(){
+  const q=($("publicStoreSearch")?.value||"").trim();
+  const {data,error}=await db.rpc("public_store_search",{p_search:q||null});
+  if(error){$("publicStoreList").innerHTML=`<div class="public-empty">${esc(errorText(error))}</div>`;return;}
+  const stores=data||[];
+  $("publicStoreList").innerHTML=stores.map(s=>`<button type="button" class="card public-store-card" data-public-store="${esc(s.id)}"><div class="store-icon">▦</div><h3>${esc(s.name)}</h3><p>${Number(s.product_count||0)} productos publicados</p></button>`).join("")||'<div class="public-empty">No se han encontrado tiendas.</div>';
+}
+let publicCatalogRows=[];
+let publicFilters={brands:new Set(),puffs:new Set(),search:"",onlyAvailable:false};
+function uniqueSorted(values){return [...new Set(values.filter(v=>v!==null&&v!==undefined&&String(v).trim()!==""))].sort((a,b)=>String(a).localeCompare(String(b),"es",{numeric:true,sensitivity:"base"}));}
+function renderPublicFilterOptions(){
+  const brands=uniqueSorted(publicCatalogRows.map(p=>p.brand));
+  const puffs=uniqueSorted(publicCatalogRows.map(p=>Number(p.puffs||0)));
+  const brandBox=$("publicBrandFilters"), puffsBox=$("publicPuffsFilters");
+  brandBox.innerHTML=brands.map(v=>{const key=String(v);return `<label class="public-filter-option"><input type="checkbox" data-filter-brand="${esc(key)}" ${publicFilters.brands.has(key)?"checked":""}><span>${esc(key)}</span><span class="public-filter-count">${publicCatalogRows.filter(p=>String(p.brand||"")===key).length}</span></label>`}).join("")||'<span class="hint">Sin marcas</span>';
+  puffsBox.innerHTML=puffs.map(v=>{const key=String(v);return `<label class="public-filter-option"><input type="checkbox" data-filter-puffs="${esc(key)}" ${publicFilters.puffs.has(key)?"checked":""}><span>${Number(v).toLocaleString("es-ES")}</span><span class="public-filter-count">${publicCatalogRows.filter(p=>Number(p.puffs||0)===Number(v)).length}</span></label>`}).join("")||'<span class="hint">Sin datos</span>';
+}
+function renderPublicProducts(){
+  const q=publicFilters.search.trim().toLowerCase();
+  const rows=publicCatalogRows.filter(p=>{
+    const brand=String(p.brand||"");
+    const flavor=String(p.flavor||"");
+    const matchesSearch=!q||`${brand} ${flavor}`.toLowerCase().includes(q);
+    const matchesBrand=!publicFilters.brands.size||publicFilters.brands.has(brand);
+    const matchesPuffs=!publicFilters.puffs.size||publicFilters.puffs.has(String(Number(p.puffs||0)));
+    const matchesStock=!publicFilters.onlyAvailable||Number(p.stock||0)>0;
+    return matchesSearch&&matchesBrand&&matchesPuffs&&matchesStock;
+  });
+  $("publicResultsMeta").textContent=`${rows.length} de ${publicCatalogRows.length} producto${publicCatalogRows.length===1?"":"s"}`;
+  $("publicProductList").innerHTML=rows.map(p=>{
+    const img=p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.flavor||"Producto")}" loading="lazy" decoding="async">`:'<span class="noimg">Sin foto</span>';
+    const stock=Number(p.stock||0);
+    return `<article class="card public-product"><div class="public-product-photo">${img}</div><div class="public-product-body"><span class="tag">${esc(p.brand||"Producto")}</span><h3>${esc(p.flavor||"Producto")}</h3><div class="meta">${Number(p.puffs||0).toLocaleString("es-ES")} caladas</div><div class="public-price">${money(p.price)}</div><div class="public-stock">Stock: <strong>${stock}</strong></div></div></article>`;
+  }).join("")||'<div class="public-empty">No hay productos que coincidan con los filtros.</div>';
+}
+async function openPublicStore(id){
+  const {data,error}=await db.rpc("public_store_products",{p_store_id:id});
+  if(error){toast(errorText(error),true);return;}
+  publicCatalogRows=data||[];
+  publicFilters={brands:new Set(),puffs:new Set(),search:"",onlyAvailable:false};
+  $("publicProductSearch").value="";
+  $("publicOnlyAvailable").checked=false;
+  $("publicStoreTitle").textContent=publicCatalogRows[0]?.store_name||"Tienda";
+  $("publicStoreMeta").textContent=`${publicCatalogRows.length} producto${publicCatalogRows.length===1?"":"s"} publicados`;
+  renderPublicFilterOptions();
+  renderPublicProducts();
+  $("publicFilters").classList.remove("open");
+  $("publicView").classList.add("hidden");$("publicStoreView").classList.remove("hidden");
+}
+
+async function openAdmin(){
+  state.isAdmin=true;
+  $("publicView").classList.add("hidden");$("publicStoreView").classList.add("hidden");$("loginView").classList.add("hidden");$("storePickerView").classList.add("hidden");$("onboardingView").classList.add("hidden");$("appView").classList.add("hidden");
+  $("adminView").classList.remove("hidden");
+  await loadAdminData();
+}
+async function loadAdminData(){
+  const [keys,stores]=await Promise.all([db.rpc("admin_list_creation_keys"),db.rpc("admin_list_stores")]);
+  if(keys.error||stores.error){$("adminError").textContent=errorText(keys.error||stores.error);$("adminError").classList.remove("hidden");return;}
+  $("adminError").classList.add("hidden");
+  $("adminKeysList").innerHTML=(keys.data||[]).map(k=>`<div class="admin-key"><div><code>${esc(k.key_code)}</code><br><small>${k.status==="used"?`Utilizada · ${esc(k.store_name||"")}`:"Disponible"}</small></div><span class="tag">${k.status==="used"?"USADA":"DISPONIBLE"}</span></div>`).join("")||'<div class="empty">No hay claves creadas.</div>';
+  $("adminStoreCount").textContent=String((stores.data||[]).length);
+  $("adminStoresList").innerHTML=(stores.data||[]).map(s=>`<div class="admin-key"><div><strong>${esc(s.name)}</strong><br><small>${esc(s.created_at?.slice(0,10)||"")}</small></div><button class="btn" type="button" data-admin-public-store="${esc(s.id)}">Ver</button></div>`).join("")||'<div class="empty">No hay tiendas.</div>';
+}
+$("publicLoginBtn").onclick=()=>{ $("publicView").classList.add("hidden"); $("publicStoreView").classList.add("hidden"); $("loginView").classList.remove("hidden"); $("loginPanel").classList.remove("hidden"); $("registerPanel").classList.add("hidden"); };
+$("backPublicBtn").onclick=showPublicHome;
+$("publicSearchBtn").onclick=loadPublicStores;
+$("publicStoreSearch").addEventListener("input",()=>{clearTimeout(window.__publicSearch);window.__publicSearch=setTimeout(loadPublicStores,180);});
+$("publicBackBtn").onclick=showPublicHome;
+$("clearPublicFilters").onclick=()=>{publicFilters={brands:new Set(),puffs:new Set(),search:"",onlyAvailable:false};$("publicProductSearch").value="";$("publicOnlyAvailable").checked=false;renderPublicFilterOptions();renderPublicProducts();};
+$("publicProductSearch").addEventListener("input",e=>{publicFilters.search=e.target.value||"";renderPublicProducts();});
+$("publicOnlyAvailable").addEventListener("change",e=>{publicFilters.onlyAvailable=e.target.checked;renderPublicProducts();});
+$("openPublicFilters").onclick=()=>$("publicFilters").classList.add("open");
+$("closePublicFilters").onclick=()=>$("publicFilters").classList.remove("open");
+$("publicBrandFilters").addEventListener("change",e=>{const el=e.target.closest("input[data-filter-brand]");if(!el)return;const v=el.dataset.filterBrand;if(el.checked)publicFilters.brands.add(v);else publicFilters.brands.delete(v);renderPublicProducts();});
+$("publicPuffsFilters").addEventListener("change",e=>{const el=e.target.closest("input[data-filter-puffs]");if(!el)return;const v=el.dataset.filterPuffs;if(el.checked)publicFilters.puffs.add(v);else publicFilters.puffs.delete(v);renderPublicProducts();});
+document.addEventListener("click",async e=>{
+  const ps=e.target.closest("[data-public-store]"); if(ps){await openPublicStore(ps.dataset.publicStore);return;}
+  const aps=e.target.closest("[data-admin-public-store]"); if(aps){await openPublicStore(aps.dataset.adminPublicStore);}
+});
+$("createKeyBtn").onclick=async()=>{
+  const {data,error}=await db.rpc("admin_create_creation_key");
+  if(error)return toast(errorText(error),true);
+  await loadAdminData();
+  $("adminNewKey").innerHTML=`<strong>Nueva clave:</strong> <code>${esc(data)}</code> · <button type="button" class="btn" id="copyAdminKey" style="padding:5px 8px;margin-left:5px">Copiar</button>`;
+  $("adminNewKey").classList.remove("hidden");
+  $("copyAdminKey").onclick=async()=>{try{await navigator.clipboard.writeText(data);toast("Clave copiada.");}catch{toast("No se pudo copiar automáticamente.",true);}};
+  toast("Clave de creación generada.");
+};
+$("adminHomeBtn").onclick=showPublicHome;
+$("adminLogout").onclick=logout;
 
 $("showRegister").onclick=()=>{
   $("loginPanel").classList.add("hidden");
@@ -1101,9 +1296,10 @@ $("appLogout").onclick=logout;
 $("createStoreForm").onsubmit=async e=>{
   e.preventDefault();$("onboardingError").classList.add("hidden");
   const name=$("storeName").value.trim();
-  if(!name)return;
+  const creationKey=$("storeCreationKey").value.trim().toUpperCase();
+  if(!name||!creationKey)return;
   const code=storeRandomCode(),password=storeRandomPassword();
-  const {data,error}=await db.rpc("create_store_with_access",{p_name:name,p_join_code:code,p_join_password:password});
+  const {data,error}=await db.rpc("create_store_with_access",{p_name:name,p_join_code:code,p_join_password:password,p_creation_key:creationKey});
   if(error){$("onboardingError").textContent=errorText(error);$("onboardingError").classList.remove("hidden");return;}
   state.storeAccess={code,password};
   await loadProfile(typeof data === "string" ? data : (data?.store_id||null));
@@ -1303,7 +1499,7 @@ $("movementBtn").onclick=async()=>{
 $("restockBtn").onclick=async()=>{
   if(!isOwner())return toast("Solo el jefe puede reponer stock.",true);
   if(!state.store)return toast("No hay tienda configurada.",true);
-  const pid=$("restockProduct").value,source=$("restockWarehouse").value,destination=$("restockDestinationWarehouse").value,qty=Number($("restockQty").value),note=$("restockNote").value.trim();
+  const pid=$("restockProduct").value,source=$("restockWarehouse").value,destination=$("rpZEAWYtiB6bJ16NuLbGCc6CZ6jJdKfb63").value,qty=Number($("restockQty").value),note=$("restockNote").value.trim();
   if(!pid||!source||!Number.isInteger(qty)||qty<1)return toast("Revisa producto, almacén y cantidad.",true);
   if($("restockType").value==="transfer"){
     if(!destination||source===destination)return toast("Selecciona un almacén de destino diferente.",true);
@@ -1383,12 +1579,14 @@ $("newCashBoxBtn").onclick=()=>{if(!isOwner())return;$("cashBoxForm").reset();$(
   if(session){
     state.user=session.user;
     await openApp();
-    if(params.get("join")){
+    if(params.get("join") && !state.isAdmin){
       $("joinStoreCode").value=params.get("join");
       $("joinStorePassword").value=params.get("key")||"";
       $("storePickerView").classList.add("hidden");
       showOnboardingPanel("joinStorePanel");$("onboardingView").classList.remove("hidden");
     }
+  }else{
+    await showPublicHome();
   }
   db.auth.onAuthStateChange(async(_event,session)=>{
     if(session&&!state.user){state.user=session.user;await openApp();}
