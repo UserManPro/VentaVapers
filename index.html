@@ -548,7 +548,7 @@
         <div class="field identifier-field"><label>Identificador del producto</label><input id="restockIdentifier" autocomplete="off" placeholder="Ej. 15-1"></div>
         <div id="restockProductInfo" class="product-info hidden"></div>
         <div class="row"><div class="field"><label>Producto</label><select id="restockProduct"></select></div><div class="field"><label>Tipo</label><select id="restockType"><option value="restock">Añadir stock</option><option value="transfer">Trasladar desde otro almacén</option></select></div></div>
-        <div class="row"><div class="field"><label id="restockSourceLabel">Almacén</label><select id="restockWarehouse"></select></div><div class="field hidden" id="restockDestinationField"><label>Almacén de destino</label><select id="rpZEAWYtiB6bJ16NuLbGCc6CZ6jJdKfb63"></select></div></div>
+        <div class="row"><div class="field"><label id="restockSourceLabel">Almacén</label><select id="restockWarehouse"></select></div><div class="field hidden" id="restockDestinationField"><label>Almacén de destino</label><select id="restockDestinationWarehouse"></select></div></div>
         <div class="field"><label>Cantidad</label><input id="restockQty" type="number" min="1" step="1" value="1"></div>
         <div class="field"><label>Nota</label><input id="restockNote" placeholder="Motivo o referencia (opcional)"></div>
         <button class="btn primary" id="restockBtn" type="button">Añadir stock</button>
@@ -561,8 +561,23 @@
 <section id="expensesPage" class="hidden"><div class="hero"><div><h1>Gastos</h1><p>Registra manualmente compras y otros gastos de la tienda.</p></div><button class="btn primary owner-only" id="newExpenseBtn">＋ Gasto</button></div><div class="grid" id="expenseSummary"></div><div class="section card"><div class="section-head"><h2>Gastos registrados</h2></div><div class="table-wrap"><table class="table"><thead><tr><th>Fecha</th><th>Concepto</th><th>Importe</th><th>Nota</th></tr></thead><tbody id="expensesBody"></tbody></table></div></div></section>
 <section id="warehousesPage" class="hidden"><div class="hero"><div><h1>Almacenes</h1><p>Gestiona los almacenes de la tienda y consulta sus existencias.</p></div><button class="btn primary owner-only" id="newWarehouseBtn">＋ Almacén</button></div><div class="grid" id="warehouseSummary"></div><div class="section card"><div class="section-head"><h2>Almacenes</h2></div><div id="warehousesCards" class="admin-grid"></div></div></section>
 <section id="historyPage" class="hidden">
-      <div class="hero"><div><h1>Historial</h1><p>Consulta las operaciones registradas.</p></div></div>
-      <div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>Fecha</th><th>Producto</th><th>Almacén</th><th>Tipo</th><th>Cantidad</th><th>Usuario</th><th>Nota</th></tr></thead><tbody id="historyBody"></tbody></table></div></div>
+      <div class="hero"><div><h1>Historial</h1><p>Consulta en un único sitio las operaciones de inventario, cajas y demás movimientos registrados.</p></div></div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="inventory-filterbar" style="grid-template-columns:minmax(220px,1fr) auto">
+          <div class="field" style="margin:0"><label>Filtrar por tipo</label><select id="historyTypeFilter">
+            <option value="all">Todo</option>
+            <option value="sale">Ventas</option>
+            <option value="cash">Movimientos de cajas</option>
+            <option value="restock">Reposición de stock</option>
+            <option value="transfer">Traslados de stock</option>
+            <option value="reservation">Apartados</option>
+            <option value="expense">Gastos</option>
+            <option value="debt">Deudas</option>
+          </select></div>
+          <button class="btn filter-clear" id="clearHistoryFilter" type="button">Limpiar</button>
+        </div>
+      </div>
+      <div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>Fecha</th><th>Tipo</th><th>Producto / Caja</th><th>Almacén</th><th>Importe</th><th>Cantidad</th><th>Usuario</th><th>Nota</th></tr></thead><tbody id="historyBody"></tbody></table></div></div>
     </section>
   </main>
   <nav class="nav"><div class="nav-in">
@@ -723,7 +738,7 @@ const db = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
 });
 
-let state={user:null,profile:null,store:null,storeRole:null,storeAccess:null,isAdmin:false,stores:[],warehouses:[],products:[],stock:[],movements:[],activity:[],productImages:[],cashBoxes:[],debts:[],expenses:[],reservations:[],userProfiles:{},inventoryFilters:{brand:"",puffs:"",stock:"",sort:"priceAsc"}};
+let state={user:null,profile:null,store:null,storeRole:null,storeAccess:null,isAdmin:false,stores:[],warehouses:[],products:[],stock:[],movements:[],activity:[],productImages:[],cashBoxes:[],debts:[],expenses:[],reservations:[],userProfiles:{},inventoryFilters:{brand:"",puffs:"",stock:"",sort:"priceAsc"},historyFilter:"all"};
 let editingProductId=null;
 let currentLanguage=localStorage.getItem("nightstock_language")||"es";
 let currentTheme=localStorage.getItem("nightstock_theme")||"dark";
@@ -884,22 +899,23 @@ async function selectStore(storeId){
 async function loadData(){
   if(!state.store)return;
   const sid=state.store.id;
-  const [w,p,s,m,a,pi,cb,dbt,ex]=await Promise.all([
+  const [w,p,s,m,a,cm,pi,cb,dbt,ex]=await Promise.all([
     db.from("warehouses").select("*").eq("store_id",sid).order("created_at"),
     db.from("products").select("*").eq("store_id",sid).order("brand"),
     // stock se relaciona con la tienda mediante warehouse_id; no tiene store_id.
     db.from("stock").select("*"),
-    db.from("stock_movements").select("*").eq("store_id",sid).order("created_at",{ascending:false}).limit(50),
-    db.from("inventory_activity").select("*").eq("store_id",sid).order("created_at",{ascending:false}).limit(100),
+    db.from("stock_movements").select("*").eq("store_id",sid).order("created_at",{ascending:false}).limit(100),
+    db.from("inventory_activity").select("*").eq("store_id",sid).order("created_at",{ascending:false}).limit(150),
+    db.from("cash_box_movements").select("*").eq("store_id",sid).order("created_at",{ascending:false}).limit(150),
     db.from("product_images").select("product_id,image_url").eq("store_id",sid),
     db.from("cash_boxes").select("*").eq("store_id",sid).order("created_at"),
     db.from("debts").select("*").eq("store_id",sid).order("created_at",{ascending:false}),
     db.from("expenses").select("*").eq("store_id",sid).order("created_at",{ascending:false})
   ]);
-  for(const r of [w,p,s,m,a,pi,cb,dbt,ex])if(r.error)throw r.error;
-  state.warehouses=w.data||[];state.products=p.data||[];state.stock=s.data||[];state.movements=m.data||[];state.activity=a.data||[];state.productImages=pi.data||[];state.cashBoxes=cb.data||[];state.debts=dbt.data||[];state.expenses=ex.data||[];
+  for(const r of [w,p,s,m,a,cm,pi,cb,dbt,ex])if(r.error)throw r.error;
+  state.warehouses=w.data||[];state.products=p.data||[];state.stock=s.data||[];state.movements=m.data||[];state.activity=a.data||[];state.cashMovements=cm.data||[];state.productImages=pi.data||[];state.cashBoxes=cb.data||[];state.debts=dbt.data||[];state.expenses=ex.data||[];
   const reservationsResult=await db.from("reservations").select("*").eq("store_id",sid).order("created_at",{ascending:false});if(reservationsResult.error)throw reservationsResult.error;state.reservations=reservationsResult.data||[];
-  const userIds=[...new Set([...state.movements,...state.activity].map(x=>x.user_id).filter(Boolean))];
+  const userIds=[...new Set([...state.movements,...state.activity,...state.cashMovements].map(x=>x.user_id).filter(Boolean))];
   state.userProfiles={};
   if(userIds.length){ const pr=await db.from("profiles").select("id,username,name,email").in("id",userIds); if(!pr.error)(pr.data||[]).forEach(u=>{state.userProfiles[u.id]=u;}); }
   render();
@@ -932,7 +948,7 @@ function fillSelectors(){
   if(currentCashBox && state.cashBoxes.some(c=>c.id===currentCashBox)) $("movementCashBox").value=currentCashBox;
   $("restockProduct").innerHTML=state.products.map(p=>`<option value="${esc(p.id)}">${esc(p.flavor||"Sin sabor")} · ${esc(p.barcode||"—")} · stock ${qtyFor(p.id)}</option>`).join("");
   $("restockWarehouse").innerHTML=state.warehouses.map(w=>`<option value="${esc(w.id)}">${esc(w.name)}</option>`).join("");
-  $("rpZEAWYtiB6bJ16NuLbGCc6CZ6jJdKfb63").innerHTML=state.warehouses.map(w=>`<option value="${esc(w.id)}">${esc(w.name)}</option>`).join("");
+  $("restockDestinationWarehouse").innerHTML=state.warehouses.map(w=>`<option value="${esc(w.id)}">${esc(w.name)}</option>`).join("");
   $("pWarehouse").innerHTML=`<option value="">Almacén principal (${esc(state.warehouses[0]?.name||"sin almacenes")})</option>`+state.warehouses.map(w=>`<option value="${esc(w.id)}">${esc(w.name)}</option>`).join("");
   if(currentProduct && state.products.some(p=>p.id===currentProduct))$("movementProduct").value=currentProduct;
   if(currentRestockProduct && state.products.some(p=>p.id===currentRestockProduct))$("restockProduct").value=currentRestockProduct;
@@ -947,21 +963,48 @@ function fillSelectors(){
   const restockSelected=state.products.find(p=>p.id===$("restockProduct").value);
   if(restockSelected){$("restockIdentifier").value=String(restockSelected.barcode||"");renderRestockProductInfo(restockSelected);}
 }
+function historyUser(userId){const u=state.userProfiles[userId];return u?.username?`@${u.username}`:(u?.name||u?.email||"Usuario");}
+function historyKindLabel(kind){return ({sale:"Venta",cash:"Movimiento de caja",restock:"Reposición de stock",transfer:"Traslado de stock",reservation:"Apartado",expense:"Gasto",debt:"Deuda"})[kind]||"Operación";}
+function buildHistoryEvents(){
+  const events=[];
+  for(const m of [...state.movements,...state.activity]){
+    const raw=String(m.activity_type||m.movement_type||"").toLowerCase();
+    const isTransfer=/transfer|traslad/.test(raw);
+    const isSale=/sale|venta|salida/.test(raw)&&!isTransfer;
+    events.push({date:m.created_at,kind:isTransfer?"transfer":isSale?"sale":"restock",productId:m.product_id,warehouseId:m.warehouse_id,amount:null,quantity:Number(m.quantity||0),userId:m.user_id,note:m.note||"",raw:m});
+  }
+  for(const m of state.cashMovements){
+    const box=state.cashBoxes.find(x=>x.id===m.cash_box_id);
+    events.push({date:m.created_at,kind:"cash",cashBoxId:m.cash_box_id,amount:(m.movement_type==="out"?-1:1)*Number(m.amount||0),quantity:null,userId:m.user_id,note:m.note||"",raw:m,boxName:box?.name||"Caja"});
+  }
+  for(const r of state.reservations){
+    const p=state.products.find(x=>x.id===r.product_id), w=state.warehouses.find(x=>x.id===r.warehouse_id);
+    events.push({date:r.created_at,kind:"reservation",productId:r.product_id,warehouseId:r.warehouse_id,amount:Number(p?.price||0)*Number(r.quantity||0),quantity:Number(r.quantity||0),userId:r.user_id,note:`Apartado · ${r.status}${r.customer_name?` · Cliente: ${r.customer_name}`:""}${r.note?` · ${r.note}`:""}`,raw:r});
+    if(r.completed_at) events.push({date:r.completed_at,kind:"reservation",productId:r.product_id,warehouseId:r.warehouse_id,amount:Number(p?.price||0)*Number(r.quantity||0),quantity:Number(r.quantity||0),userId:r.user_id,note:"Apartado finalizado y cobrado",raw:r});
+    if(r.cancelled_at) events.push({date:r.cancelled_at,kind:"reservation",productId:r.product_id,warehouseId:r.warehouse_id,amount:null,quantity:Number(r.quantity||0),userId:r.user_id,note:"Apartado cancelado y stock devuelto",raw:r});
+  }
+  for(const e of state.expenses) events.push({date:e.created_at,kind:"expense",amount:-Number(e.amount||0),quantity:null,userId:e.user_id,note:e.note||"",raw:e,boxName:e.name||"Gasto"});
+  for(const d of state.debts) events.push({date:d.created_at,kind:"debt",amount:Number(d.amount||0),quantity:null,userId:d.user_id,note:`${d.status==='paid'?'Pagada':'Pendiente'} · Inicio: ${d.start_date||"—"}`,raw:d,boxName:d.name||"Deuda"});
+  return events.sort((a,b)=>new Date(b.date)-new Date(a.date));
+}
 function renderMovements(){
   const timeline=[...state.movements,...state.activity].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-  const rows=timeline.map(m=>{
-    const p=state.products.find(x=>x.id===m.product_id);
-    const w=state.warehouses.find(x=>x.id===m.warehouse_id);
-    return `<tr><td>${date(m.created_at)}</td><td>${esc(p?.flavor||m.product_id)}</td><td>${esc(m.activity_type||m.movement_type||"")}</td><td>${Number(m.quantity||0)}</td><td>${esc(m.note||"")}</td></tr>`;
-  }).join("");
+  const rows=timeline.map(m=>{const p=state.products.find(x=>x.id===m.product_id);return `<tr><td>${date(m.created_at)}</td><td>${esc(p?.flavor||m.product_id)}</td><td>${esc(m.activity_type||m.movement_type||"")}</td><td>${Number(m.quantity||0)}</td><td>${esc(m.note||"")}</td></tr>`;}).join("");
   $("movementsBody").innerHTML=rows||`<tr><td colspan="5" class="empty">Sin movimientos.</td></tr>`;
-  $("historyBody").innerHTML=timeline.map(m=>{
-    const p=state.products.find(x=>x.id===m.product_id),w=state.warehouses.find(x=>x.id===m.warehouse_id);
-    const u=state.userProfiles[m.user_id]; const username=u?.username ? `@${u.username}` : (u?.name||u?.email||"Usuario");
-    return `<tr><td>${date(m.created_at)}</td><td>${esc(p?.flavor||"—")}</td><td>${esc(w?.name||"—")}</td><td>${esc(m.activity_type||m.movement_type||"")}</td><td>${Number(m.quantity||0)}</td><td>${esc(username)}</td><td class="history-note">${esc(m.note||"—")}</td></tr>`;
-  }).join("")||`<tr><td colspan="7" class="empty">Sin historial.</td></tr>`;
+  renderHistory();
 }
-
+function renderHistory(){
+  const filter=state.historyFilter||"all";
+  const events=buildHistoryEvents().filter(e=>filter==="all"||e.kind===filter);
+  $("historyTypeFilter").value=filter;
+  $("historyBody").innerHTML=events.map(e=>{
+    const p=state.products.find(x=>x.id===e.productId), w=state.warehouses.find(x=>x.id===e.warehouseId);
+    const label=historyKindLabel(e.kind), subject=p?.flavor||e.boxName||"—";
+    const amount=e.amount==null?"—":money(e.amount);
+    const amountClass=e.amount!=null?(e.amount<0?' style="color:#ff7f8d"':' style="color:#7ee7bf"'):"";
+    return `<tr><td>${date(e.date)}</td><td>${esc(label)}</td><td>${esc(subject)}</td><td>${esc(w?.name||"—")}</td><td${amountClass}>${amount}</td><td>${e.quantity==null?"—":Number(e.quantity)}</td><td>${esc(historyUser(e.userId))}</td><td class="history-note">${esc(e.note||"—")}</td></tr>`;
+  }).join("")||`<tr><td colspan="8" class="empty">No hay movimientos para este filtro.</td></tr>`;
+}
 function renderProductDetail(id){const p=state.products.find(x=>x.id===id);if(!p)return;const img=imageFor(p.id);const rows=state.warehouses.map(w=>`<div class="warehouse-stock-row"><span>${esc(w.name)}</span><strong>${qtyFor(p.id,w.id)}</strong></div>`).join("");$("productDetailTitle").textContent=p.flavor||"Producto";$("productDetailMeta").textContent=`${p.brand||""} · ${Number(p.puffs||0).toLocaleString("es-ES")} caladas · ${money(p.price)} · ID ${p.barcode||"—"}`;$("productDetailBody").innerHTML=`<div class="product-detail-grid"><div class="product-detail-photo">${img?`<img src="${esc(img)}" alt="${esc(p.flavor||"Producto")}">`:'<span class="noimg">Sin foto</span>'}</div><div><div class="section-head"><h3 style="margin:0">Existencias por almacén</h3><strong style="font-size:22px">${qtyFor(p.id)}</strong></div><div class="product-detail-warehouses">${rows||'<div class="empty">No hay almacenes.</div>'}</div></div></div>`;$("productDetailModal").classList.remove("hidden");}
 function renderReservations(){const list=$("reservationsList");if(!list)return;const active=state.reservations.filter(r=>r.status==='reserved'),units=active.reduce((a,r)=>a+Number(r.quantity||0),0);$("reservationSummary").innerHTML=`<div class="card stat"><span>Apartados activos</span><b>${active.length}</b></div><div class="card stat"><span>Unidades apartadas</span><b>${units}</b></div>`;list.innerHTML=state.reservations.map(r=>{const p=state.products.find(x=>x.id===r.product_id),w=state.warehouses.find(x=>x.id===r.warehouse_id),label=r.status==='reserved'?'Reservado':r.status==='completed'?'Finalizado':'Cancelado',actions=r.status==='reserved'?`<div class="reservation-actions"><button class="btn primary" type="button" data-complete-reservation="${esc(r.id)}">Finalizar y cobrar</button><button class="btn danger" type="button" data-cancel-reservation="${esc(r.id)}">Cancelar</button></div>`:'';return `<div class="card reservation-card"><div><span class="status-pill status-${r.status}">${label}</span><h3 style="margin:8px 0 4px">${esc(p?.flavor||'Producto')}</h3><div class="meta">${esc(p?.brand||'')} · ${Number(p?.puffs||0).toLocaleString('es-ES')} caladas · ${esc(w?.name||'—')}</div><div style="margin-top:7px"><strong>${Number(r.quantity||0)} uds.</strong> · ${money(Number(p?.price||0)*Number(r.quantity||0))}</div><div class="meta" style="margin-top:5px">Cliente: ${esc(r.customer_name||'Sin indicar')} · ${date(r.created_at)}</div>${r.note?`<div class="meta">Nota: ${esc(r.note)}</div>`:''}</div>${actions}</div>`;}).join('')||'<div class="empty">No hay apartados.</div>';}
 function openReservationProduct(p){if(!p)return;$("reservationProduct").value=p.id;$("reservationIdentifier").value=p.barcode||"";$("reservationProductInfo").classList.remove("hidden");$("reservationProductInfo").innerHTML=`<strong>${esc(p.flavor||'Producto')}</strong><div class="meta">Stock disponible: ${qtyFor(p.id)}</div>`;}
@@ -1037,7 +1080,7 @@ function storeRandomCode(){
   return out;
 }
 function storeRandomPassword(){
-  const chars="ABCDEFGHJKLMNDcJHrrHSgvFpsYxqb6g97uaQTd2kE31rPUeDZTeDsjVq";
+  const chars="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
   let out="";for(let i=0;i<14;i++)out+=chars[Math.floor(Math.random()*chars.length)];
   return out;
 }
@@ -1138,7 +1181,7 @@ document.addEventListener("click",e=>{if(!e.target.closest(".profile-wrap"))$("p
 
 document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
 $("dashInventory").onclick=()=>showPage("inventoryPage");
-$("searchInput").oninput=()=>render();$("inventoryBrandFilter")?.addEventListener("change",e=>{state.inventoryFilters.brand=e.target.value;render();});$("inventoryPuffsFilter")?.addEventListener("change",e=>{state.inventoryFilters.puffs=e.target.value;render();});$("inventoryStockFilter")?.addEventListener("change",e=>{state.inventoryFilters.stock=e.target.value;render();});$("inventorySort")?.addEventListener("change",e=>{state.inventoryFilters.sort=e.target.value;render();});$("clearInventoryFilters")?.addEventListener("click",()=>{state.inventoryFilters={brand:"",puffs:"",stock:"",sort:"priceAsc"};$("searchInput").value="";render();});
+$("searchInput").oninput=()=>render();$("historyTypeFilter")?.addEventListener("change",e=>{state.historyFilter=e.target.value;renderHistory();});$("clearHistoryFilter")?.addEventListener("click",()=>{state.historyFilter="all";renderHistory();});$("inventoryBrandFilter")?.addEventListener("change",e=>{state.inventoryFilters.brand=e.target.value;render();});$("inventoryPuffsFilter")?.addEventListener("change",e=>{state.inventoryFilters.puffs=e.target.value;render();});$("inventoryStockFilter")?.addEventListener("change",e=>{state.inventoryFilters.stock=e.target.value;render();});$("inventorySort")?.addEventListener("change",e=>{state.inventoryFilters.sort=e.target.value;render();});$("clearInventoryFilters")?.addEventListener("click",()=>{state.inventoryFilters={brand:"",puffs:"",stock:"",sort:"priceAsc"};$("searchInput").value="";render();});
 function openNewProductModal(){if(!isOwner())return;editingProductId=null;$("productForm").reset();$("pMin").value=0;$("pCurrentStock").value=0;$("pCurrentStock").disabled=false;$("pWarehouse").disabled=false;fillSelectors();$("productModalTitle").textContent="Nuevo producto";$("existingProductNotice").classList.add("hidden");$("createProductBtn").disabled=false;$("createProductBtn").textContent="Crear producto";$("productModal").classList.remove("hidden");setTimeout(()=>$("pIdentifier").focus(),50);}
 function openEditProductModal(id){if(!isOwner())return;const product=state.products.find(p=>p.id===id);if(!product)return;editingProductId=id;$("productForm").reset();fillSelectors();$("productModalTitle").textContent="Editar producto";$("pIdentifier").value=product.barcode||"";$("pBrand").value=product.brand||"";$("pPuffs").value=product.puffs??"";$("pFlavor").value=product.flavor||"";$("pPrice").value=product.price??"";$("pPurchasePrice").value=product.purchase_price??"";$("pMin").value=product.minimum_stock??0;$("pCurrentStock").value=qtyFor(product.id);$("pCurrentStock").disabled=true;$("pWarehouse").disabled=true;$("existingProductNotice").classList.add("hidden");$("createProductBtn").disabled=false;$("createProductBtn").textContent="Guardar cambios";$("productModal").classList.remove("hidden");}
 $("newProductBtn").onclick=$("inventoryAdd").onclick=openNewProductModal;
@@ -1554,7 +1597,7 @@ $("movementBtn").onclick=async()=>{
 $("restockBtn").onclick=async()=>{
   if(!isOwner())return toast("Solo el jefe puede reponer stock.",true);
   if(!state.store)return toast("No hay tienda configurada.",true);
-  const pid=$("restockProduct").value,source=$("restockWarehouse").value,destination=$("rpZEAWYtiB6bJ16NuLbGCc6CZ6jJdKfb63").value,qty=Number($("restockQty").value),note=$("restockNote").value.trim();
+  const pid=$("restockProduct").value,source=$("restockWarehouse").value,destination=$("restockDestinationWarehouse").value,qty=Number($("restockQty").value),note=$("restockNote").value.trim();
   if(!pid||!source||!Number.isInteger(qty)||qty<1)return toast("Revisa producto, almacén y cantidad.",true);
   if($("restockType").value==="transfer"){
     if(!destination||source===destination)return toast("Selecciona un almacén de destino diferente.",true);
