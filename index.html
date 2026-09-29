@@ -1362,7 +1362,7 @@ async function loadPublicStores(){
   $("publicStoreList").innerHTML=stores.map(s=>`<button type="button" class="card public-store-card" data-public-store="${esc(s.id)}"><div class="store-icon">▦</div><h3>${esc(s.name)}</h3><p>${Number(s.product_count||0)} productos publicados</p></button>`).join("")||'<div class="public-empty">No se han encontrado tiendas.</div>';
 }
 let publicCatalogRows=[];
-let publicFilters={brands:new Set(),puffs:new Set(),search:"",onlyAvailable:false,sort:"puffsAsc"};
+let publicFilters={brands:new Set(),puffs:new Set(),search:"",onlyAvailable:true,sort:"puffsAsc"};
 function uniqueSorted(values){return [...new Set(values.filter(v=>v!==null&&v!==undefined&&String(v).trim()!==""))].sort((a,b)=>String(a).localeCompare(String(b),"es",{numeric:true,sensitivity:"base"}));}
 function renderPublicFilterOptions(){
   const brands=uniqueSorted(publicCatalogRows.map(p=>p.brand));
@@ -1401,9 +1401,9 @@ async function openPublicStore(id,updateUrl=true){
   const {data,error}=await db.rpc("public_store_products",{p_store_id:id});
   if(error){toast(errorText(error),true);return;}
   publicCatalogRows=data||[];
-  publicFilters={brands:new Set(),puffs:new Set(),search:"",onlyAvailable:false,sort:"puffsAsc"};
+  publicFilters={brands:new Set(),puffs:new Set(),search:"",onlyAvailable:true,sort:"puffsAsc"};
   $("publicProductSearch").value="";
-  $("publicOnlyAvailable").checked=false;
+  $("publicOnlyAvailable").checked=true;
   if($("publicSort")) $("publicSort").value="puffsAsc";
   $("publicStoreTitle").textContent=publicCatalogRows[0]?.store_name||"Tienda";
   $("publicStoreMeta").textContent=`${publicCatalogRows.length} producto${publicCatalogRows.length===1?"":"s"} publicados`;
@@ -1555,7 +1555,7 @@ $("backPublicBtn").onclick=showPublicHome;
 $("publicSearchBtn").onclick=loadPublicStores;
 $("publicStoreSearch").addEventListener("input",()=>{clearTimeout(window.__publicSearch);window.__publicSearch=setTimeout(loadPublicStores,180);});
 $("publicBackBtn").onclick=showPublicHome;
-$("clearPublicFilters").onclick=()=>{publicFilters={brands:new Set(),puffs:new Set(),search:"",onlyAvailable:false,sort:"puffsAsc"};$("publicProductSearch").value="";$("publicOnlyAvailable").checked=false;if($("publicSort"))$("publicSort").value="puffsAsc";renderPublicFilterOptions();renderPublicPuffFolders();renderPublicProducts();};
+$("clearPublicFilters").onclick=()=>{publicFilters={brands:new Set(),puffs:new Set(),search:"",onlyAvailable:true,sort:"puffsAsc"};$("publicProductSearch").value="";$("publicOnlyAvailable").checked=true;if($("publicSort"))$("publicSort").value="puffsAsc";renderPublicFilterOptions();renderPublicPuffFolders();renderPublicProducts();};
 $("publicProductSearch").addEventListener("input",e=>{publicFilters.search=e.target.value||"";renderPublicProducts();});
 $("publicOnlyAvailable").addEventListener("change",e=>{publicFilters.onlyAvailable=e.target.checked;renderPublicProducts();});$("publicSort")?.addEventListener("change",e=>{publicFilters.sort=e.target.value;renderPublicProducts();});
 $("openPublicFilters").onclick=()=>$("publicFilters").classList.add("open");
