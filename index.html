@@ -1558,7 +1558,7 @@ $("publicSearchBtn").onclick=loadPublicStores;
 $("publicStoreSearch").addEventListener("input",()=>{clearTimeout(window.__publicSearch);window.__publicSearch=setTimeout(loadPublicStores,180);});
 $("publicBackBtn").onclick=showPublicHome;
 $("clearPublicFilters").onclick=()=>{publicFilters={brands:new Set(),puffs:new Set(),search:"",onlyAvailable:true,sort:"puffsAsc"};$("publicCatalogSearch").value="";$("publicOnlyAvailable").checked=true;if($("publicSort"))$("publicSort").value="puffsAsc";renderPublicFilterOptions();renderPublicPuffFolders();renderPublicProducts();};
-$("publicProductSearch").addEventListener("input",e=>{publicFilters.search=e.target.value||"";renderPublicProducts();});
+$("publicCatalogSearch").addEventListener("input",e=>{publicFilters.search=e.target.value||"";renderPublicProducts();});
 $("publicOnlyAvailable").addEventListener("change",e=>{publicFilters.onlyAvailable=e.target.checked;renderPublicFilterOptions();renderPublicPuffFolders();renderPublicProducts();});$("publicSort")?.addEventListener("change",e=>{publicFilters.sort=e.target.value;renderPublicProducts();});
 $("openPublicFilters").onclick=()=>$("publicFilters").classList.add("open");
 $("closePublicFilters").onclick=()=>$("publicFilters").classList.remove("open");
