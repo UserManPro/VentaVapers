@@ -270,7 +270,17 @@
     @media(max-width:500px){.public-puff-folder{min-width:92px;height:46px;padding-left:14px;padding-right:14px}.public-puff-folders{gap:8px;margin-left:-2px;margin-right:-2px}.public-shell{padding:12px 12px 30px}.public-brand{font-size:20px}.public-stores,.public-products{grid-template-columns:1fr}.public-product-photo{height:300px;flex-basis:300px}.public-product-body{padding:14px 15px 16px}.admin-head{align-items:flex-start;flex-direction:column}}
   
 .inventory-filterbar{display:grid;grid-template-columns:minmax(180px,1.4fr) repeat(3,minmax(150px,1fr)) auto;gap:10px;margin-top:12px;align-items:end}.inventory-filterbar .field{margin:0}.inventory-filterbar label{font-size:11px}.filter-clear{white-space:nowrap}.product{cursor:pointer}.product-actions{cursor:default}.product-detail-grid{display:grid;grid-template-columns:220px 1fr;gap:18px}.product-detail-photo{width:100%;height:240px;border-radius:16px;overflow:hidden;background:#080b12;display:grid;place-items:center}.product-detail-photo img{width:100%;height:100%;object-fit:cover}.product-detail-warehouses{display:grid;gap:8px}.warehouse-stock-row{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#ffffff04}.product-detail-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.product-detail-actions .btn{flex:1;min-width:150px}.debt-status-box{padding:11px 13px;border:1px solid #ffb45444;background:#ffb45410;border-radius:13px;color:#ffd58f;font-size:13px;line-height:1.45}.reservation-list{display:grid;gap:10px}.reservation-card{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}.reservation-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.status-reserved{color:#ffd166;background:#ffd16614}.status-completed{color:#38d39f;background:#38d39f14}.status-cancelled{color:#ff7f8d;background:#ff7f8d14}.history-note{max-width:280px;white-space:normal}@media(max-width:900px){.inventory-filterbar{grid-template-columns:1fr 1fr}.product-detail-grid{grid-template-columns:1fr}.product-detail-photo{height:280px}}@media(max-width:560px){.inventory-filterbar{grid-template-columns:1fr}.reservation-card{grid-template-columns:1fr}.reservation-actions{justify-content:flex-start}.product-detail-photo{height:300px}}
-</style>
+    .stats-toolbar{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+    .stats-toolbar .field{flex:1 1 220px}
+    .top-products-chart{display:grid;gap:12px}
+    .top-product-row{display:grid;grid-template-columns:minmax(150px,260px) 1fr 70px;gap:12px;align-items:center}
+    .top-product-label{min-width:0}.top-product-label strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.top-product-label span{display:block;color:var(--muted);font-size:11px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .top-product-track{height:28px;border-radius:9px;background:#ffffff08;border:1px solid #ffffff0b;overflow:hidden}
+    .top-product-bar{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--accent),var(--accent2));min-width:3px;transition:width .3s ease}
+    .top-product-value{text-align:right;font-weight:900;font-size:15px}
+    .stats-empty{padding:34px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:15px}
+    @media(max-width:650px){.top-product-row{grid-template-columns:minmax(105px,1fr) 1.4fr 52px;gap:8px}.top-product-label strong{font-size:13px}.top-product-value{font-size:13px}.stats-toolbar{display:grid;grid-template-columns:1fr}.stats-toolbar .field{min-width:0!important}.stats-toolbar .btn{width:100%}}
+  </style>
 </head>
 <body>
 <div id="publicView" class="public-shell">
@@ -617,6 +627,20 @@ Stock ↓</option>
       <div class="section card"><div class="section-head"><h2>Últimos movimientos</h2></div><div class="table-wrap"><table class="table"><thead><tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Nota</th></tr></thead><tbody id="movementsBody"></tbody></table></div></div>
     </section>
 
+    <section id="statsPage" class="hidden">
+      <div class="hero"><div><h1>Estadísticas</h1><p>Consulta qué productos se venden más y filtra los resultados por categoría.</p></div></div>
+      <div class="card stats-toolbar">
+        <div class="field" style="margin:0;min-width:220px;flex:1"><label>Categoría</label><select id="statsCategoryFilter"><option value="">Todas las categorías</option></select></div>
+        <div class="field" style="margin:0;min-width:160px"><label>Mostrar</label><select id="statsLimit"><option value="5">Top 5</option><option value="10" selected>Top 10</option><option value="20">Top 20</option></select></div>
+        <button class="btn filter-clear" id="refreshStatsBtn" type="button">↻ Actualizar</button>
+      </div>
+      <div class="grid" id="statsSummary"></div>
+      <div class="section card">
+        <div class="section-head"><div><h2>Productos más vendidos</h2><p class="hint" style="margin:5px 0 0">Unidades vendidas acumuladas según las ventas registradas.</p></div></div>
+        <div id="topProductsChart" class="top-products-chart"></div>
+      </div>
+    </section>
+
     <section id="reservationsPage" class="hidden">
       <div class="hero"><div><h1>Apartados</h1><p>Reserva unidades sin añadir todavía el importe a una caja.</p></div><button class="btn primary" id="newReservationBtn" type="button">＋ Apartado</button></div>
       <div class="grid" id="reservationSummary"></div>
@@ -665,7 +689,7 @@ Stock ↓</option>
   <nav class="nav"><div class="nav-in">
     <button class="active" data-page="dashboardPage"><span class="ico">⌂</span>Inicio</button>
     <button data-page="inventoryPage"><span class="ico">▦</span>Inventario</button>
-    <button data-page="salesPage"><span class="ico">€</span>Ventas</button><button data-page="reservationsPage"><span class="ico">▢</span>Apartados</button>
+    <button data-page="salesPage"><span class="ico">€</span>Ventas</button><button data-page="statsPage"><span class="ico">▥</span>Estadísticas</button><button data-page="reservationsPage"><span class="ico">▢</span>Apartados</button>
     <button data-page="restockPage" class="owner-only-nav"><span class="ico">＋</span>Reponer</button>
     <button data-page="historyPage"><span class="ico">◷</span>Historial</button><button data-page="expensesPage" class="owner-only-nav"><span class="ico">↘</span>Gastos</button><button data-page="warehousesPage"><span class="ico">▣</span>Almacenes</button><button data-page="employeesPage" class="owner-only-nav"><span class="ico">👥</span>Empleados</button><button data-page="cashPage"><span class="ico">€</span>Cajas</button><button data-page="debtsPage" class="owner-only-nav"><span class="ico">💳</span>Deudas</button>
   </div></nav>
@@ -690,7 +714,8 @@ Stock ↓</option>
       <div class="field"><label>Marca</label><input id="pBrand" required></div>
       <div class="field"><label>Caladas</label><input id="pPuffs" type="number" min="1" step="1" required></div>
     </div>
-    <div class="field"><label>Sabor</label><input id="pFlavor" required></div>
+    <div class="field"><label>Sabor / Nombre</label><input id="pFlavor" required></div>
+    <div class="field"><label>Categoría</label><input id="pCategory" placeholder="Ej. Electrónica, Ropa, Accesorios..." maxlength="80"></div>
     <div class="row">
       <div class="field"><label>Precio de venta</label><input id="pPrice" type="number" min="0" step="0.01" required></div>
       <div class="field"><label>Precio de compra</label><input id="pPurchasePrice" type="number" min="0" step="0.01" placeholder="Opcional"></div>
@@ -839,7 +864,7 @@ const db = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
 });
 
-let state={user:null,profile:null,store:null,storeRole:null,storeAccess:null,isAdmin:false,stores:[],warehouses:[],products:[],stock:[],movements:[],activity:[],productImages:[],cashBoxes:[],debts:[],expenses:[],reservations:[],userProfiles:{},inventoryFilters:{brand:"",puffs:"",stock:"",sort:"priceAsc"},historyFilter:"all",adminUsers:[],adminStores:[],adminResetTarget:null,adminFeedback:[]};
+let state={user:null,profile:null,store:null,storeRole:null,storeAccess:null,isAdmin:false,stores:[],warehouses:[],products:[],stock:[],movements:[],activity:[],sales:[],productImages:[],cashBoxes:[],debts:[],expenses:[],reservations:[],userProfiles:{},inventoryFilters:{brand:"",puffs:"",stock:"",sort:"priceAsc"},historyFilter:"all",statsCategory:"",statsLimit:10,adminUsers:[],adminStores:[],adminResetTarget:null,adminFeedback:[]};
 let editingProductId=null;
 let pendingSaleDebt=null;
 let currentLanguage=localStorage.getItem("nightstock_language")||"es";
@@ -921,10 +946,10 @@ function applyLanguage(){
     menuAccountTitle:"Account",menuProfile:"👤 Profile",menuSettings:"⚙️ Settings",menuEmployees:"👥 Employees",menuFeedback:"💬 Send feedback",appLogout:"↪ Sign out",
     dashboard:"Dashboard",inventory:"Inventory",sales:"Sales",restock:"Restock",history:"History",summary:"Summary",products:"Products",units:"Units",low:"Low stock",warehouses:"Warehouses",recent:"Recent stock",viewAll:"View all",
     inventoryDesc:"Products, images and stock.",salesDesc:"Register an inventory sale by identifier.",restockDesc:"Add units to a warehouse or move them between warehouses.",historyDesc:"Review registered operations.",
-  }:{menuAccountTitle:"Cuenta",menuProfile:"👤 Perfil",menuSettings:"⚙️ Configuración",menuEmployees:"👥 Empleados",menuFeedback:"💬 Enviar comentario",appLogout:"↪ Cerrar sesión",dashboard:"Inicio",inventory:"Inventario",sales:"Ventas",restock:"Reponer",history:"Historial",summary:"Resumen",products:"Productos",units:"Unidades",low:"Stock bajo",warehouses:"Almacenes",recent:"Stock reciente",viewAll:"Ver todo",inventoryDesc:"Productos, imágenes y existencias.",salesDesc:"Registra una salida de inventario por identificador.",restockDesc:"Añade unidades a un almacén o trasládalas entre almacenes.",historyDesc:"Consulta las operaciones registradas."};
+  }:{menuAccountTitle:"Cuenta",menuProfile:"👤 Perfil",menuSettings:"⚙️ Configuración",menuEmployees:"👥 Empleados",menuFeedback:"💬 Enviar comentario",appLogout:"↪ Cerrar sesión",dashboard:"Inicio",inventory:"Inventario",sales:"Ventas",stats:"Estadísticas",restock:"Reponer",history:"Historial",summary:"Resumen",products:"Productos",units:"Unidades",low:"Stock bajo",warehouses:"Almacenes",recent:"Stock reciente",viewAll:"Ver todo",inventoryDesc:"Productos, imágenes y existencias.",salesDesc:"Registra una salida de inventario por identificador.",restockDesc:"Añade unidades a un almacén o trasládalas entre almacenes.",historyDesc:"Consulta las operaciones registradas."};
   const set=(id,text)=>{const el=$(id);if(el)el.textContent=text;};
   set("menuAccountTitle",map.menuAccountTitle);set("menuProfile",map.menuProfile);set("menuSettings",map.menuSettings);set("menuEmployees",map.menuEmployees);set("menuFeedback",map.menuFeedback);set("appLogout",map.appLogout);
-  const nav=[...document.querySelectorAll(".nav button")]; nav.forEach(b=>{const key={dashboardPage:map.dashboard,inventoryPage:map.inventory,salesPage:map.sales,restockPage:map.restock,historyPage:map.history}[b.dataset.page];if(key){const t=b.querySelector(".ico");b.innerHTML=`${t? t.outerHTML:""}${key}`;}});
+  const nav=[...document.querySelectorAll(".nav button")]; nav.forEach(b=>{const key={dashboardPage:map.dashboard,inventoryPage:map.inventory,salesPage:map.sales,statsPage:map.stats,restockPage:map.restock,historyPage:map.history}[b.dataset.page];if(key){const t=b.querySelector(".ico");b.innerHTML=`${t? t.outerHTML:""}${key}`;}});
   set("statProducts",state.products?.length??0); // numeric, immediately restored by render
   const h2=document.querySelector("#dashboardPage .hero h1");if(h2)h2.textContent=map.summary;
   const ih=document.querySelector("#inventoryPage .hero h1");if(ih)ih.textContent=map.inventory;
@@ -1031,21 +1056,22 @@ async function refreshStoreData(silent=false){
 async function loadData(){
   if(!state.store)return;
   const sid=state.store.id;
-  const [w,p,s,m,a,cm,pi,cb,dbt,ex]=await Promise.all([
+  const [w,p,s,m,a,sv,cm,pi,cb,dbt,ex]=await Promise.all([
     db.from("warehouses").select("*").eq("store_id",sid).order("created_at"),
     db.from("products").select("*").eq("store_id",sid).order("brand"),
     // stock se relaciona con la tienda mediante warehouse_id; no tiene store_id.
     db.from("stock").select("*"),
     db.from("stock_movements").select("*").eq("store_id",sid).order("created_at",{ascending:false}).limit(100),
     db.from("inventory_activity").select("*").eq("store_id",sid).order("created_at",{ascending:false}).limit(150),
+    db.from("inventory_sales").select("id,product_id,warehouse_id,quantity,unit_price,created_at,note,user_id").eq("store_id",sid).order("created_at",{ascending:false}),
     db.from("cash_box_movements").select("*").eq("store_id",sid).order("created_at",{ascending:false}).limit(150),
     db.from("product_images").select("product_id,image_url").eq("store_id",sid),
     db.from("cash_boxes").select("*").eq("store_id",sid).order("created_at"),
     db.from("debts").select("*").eq("store_id",sid).order("created_at",{ascending:false}),
     db.from("expenses").select("*").eq("store_id",sid).order("created_at",{ascending:false})
   ]);
-  for(const r of [w,p,s,m,a,cm,pi,cb,dbt,ex])if(r.error)throw r.error;
-  state.warehouses=w.data||[];state.products=p.data||[];state.stock=s.data||[];state.movements=m.data||[];state.activity=a.data||[];state.cashMovements=cm.data||[];state.productImages=pi.data||[];state.cashBoxes=cb.data||[];state.debts=dbt.data||[];state.expenses=ex.data||[];
+  for(const r of [w,p,s,m,a,sv,cm,pi,cb,dbt,ex])if(r.error)throw r.error;
+  state.warehouses=w.data||[];state.products=p.data||[];state.stock=s.data||[];state.movements=m.data||[];state.activity=a.data||[];state.sales=sv.data||[];state.cashMovements=cm.data||[];state.productImages=pi.data||[];state.cashBoxes=cb.data||[];state.debts=dbt.data||[];state.expenses=ex.data||[];
   const reservationsResult=await db.from("reservations").select("*").eq("store_id",sid).order("created_at",{ascending:false});if(reservationsResult.error)throw reservationsResult.error;state.reservations=reservationsResult.data||[];
   const userIds=[...new Set([...state.movements,...state.activity,...state.cashMovements].map(x=>x.user_id).filter(Boolean))];
   state.userProfiles={};
@@ -1066,7 +1092,7 @@ function render(){
   $("statWarehouses").textContent=state.warehouses.length;
   $("dashProducts").innerHTML=state.products.slice(0,4).map(p=>productCard(p,qtyFor(p.id))).join("")||`<div class="empty">No hay productos todavía.</div>`;
   populateInventoryFilters();$("productsGrid").innerHTML=filteredProducts().map(p=>productCard(p,qtyFor(p.id))).join("")||`<div class="empty">No hay productos que coincidan.</div>`;
-  fillSelectors();renderMovements();renderEmployees();renderCashBoxes();renderDebts();renderWarehousesPage();renderExpenses();renderReservations();applyRoleUI();applyLanguage();
+  fillSelectors();renderMovements();renderEmployees();renderCashBoxes();renderDebts();renderWarehousesPage();renderExpenses();renderReservations();renderStats();applyRoleUI();applyLanguage();
 }
 function populateInventoryFilters(){const brand=$("inventoryBrandFilter"),puffs=$("inventoryPuffsFilter");if(!brand||!puffs)return;const brands=[...new Set(state.products.map(p=>String(p.brand||"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"es"));const vals=[...new Set(state.products.map(p=>Number(p.puffs||0)).filter(Boolean))].sort((a,b)=>a-b);brand.innerHTML='<option value="">Todas las marcas</option>'+brands.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("");puffs.innerHTML='<option value="">Todas</option>'+vals.map(x=>`<option value="${x}">${x.toLocaleString("es-ES")} caladas</option>`).join("");brand.value=state.inventoryFilters.brand;puffs.value=state.inventoryFilters.puffs;$("inventoryStockFilter").value=state.inventoryFilters.stock;$("inventorySort").value=state.inventoryFilters.sort;}
 function filteredProducts(){const q=($("searchInput")?.value||"").trim().toLocaleLowerCase("es"),f=state.inventoryFilters;let list=state.products.filter(p=>{const text=[p.flavor,p.brand,p.puffs,p.barcode].some(x=>String(x||"").toLocaleLowerCase("es").includes(q));const brand=!f.brand||String(p.brand||"")===f.brand;const puffs=!f.puffs||Number(p.puffs)===Number(f.puffs);const stock=qtyFor(p.id);const stockOk=!f.stock||(f.stock==='available'?stock>0:stock<=0);return text&&brand&&puffs&&stockOk;});list.sort((a,b)=>f.sort==='priceAsc'?Number(a.price)-Number(b.price):f.sort==='priceDesc'?Number(b.price)-Number(a.price):f.sort==='stockDesc'?qtyFor(b.id)-qtyFor(a.id):String(a.flavor||"").localeCompare(String(b.flavor||""),"es",{sensitivity:"base"}));return list;}
@@ -1146,6 +1172,41 @@ function renderHistory(){
     return `<tr><td>${date(e.date)}</td><td>${esc(label)}</td><td>${esc(subject)}</td><td>${esc(w?.name||"—")}</td><td${amountClass}>${amount}</td><td>${e.quantity==null?"—":Number(e.quantity)}</td><td>${esc(historyUser(e.userId))}</td><td class="history-note">${esc(e.note||"—")}</td></tr>`;
   }).join("")||`<tr><td colspan="8" class="empty">No hay movimientos para este filtro.</td></tr>`;
 }
+function populateStatsCategories(){
+  const select=$("statsCategoryFilter");
+  if(!select)return;
+  const categories=[...new Set(state.products.map(p=>String(p.category||"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"es"));
+  const current=state.statsCategory;
+  select.innerHTML='<option value="">Todas las categorías</option>'+categories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
+  select.value=categories.includes(current)?current:"";
+  state.statsCategory=select.value;
+  const limit=$("statsLimit");if(limit)limit.value=String(state.statsLimit||10);
+}
+function renderStats(){
+  const chart=$("topProductsChart");if(!chart)return;
+  populateStatsCategories();
+  const category=state.statsCategory;
+  const limit=Math.max(1,Number(state.statsLimit)||10);
+  const byProduct=new Map();
+  state.sales.forEach(s=>{
+    const p=state.products.find(x=>x.id===s.product_id);
+    if(!p)return;
+    if(category&&String(p.category||"").trim()!==category)return;
+    const qty=Number(s.quantity||0);
+    if(qty<=0)return;
+    const item=byProduct.get(p.id)||{product:p,quantity:0};
+    item.quantity+=qty;byProduct.set(p.id,item);
+  });
+  const allFilteredSales=state.sales.filter(s=>{const p=state.products.find(x=>x.id===s.product_id);return p&&(!category||String(p.category||"").trim()===category)});
+  const rows=[...byProduct.values()].sort((a,b)=>b.quantity-a.quantity||String(a.product.flavor||"").localeCompare(String(b.product.flavor||""),"es")).slice(0,limit);
+  const totalUnits=allFilteredSales.reduce((a,s)=>a+Number(s.quantity||0),0);
+  const distinct=byProduct.size;
+  $("statsSummary").innerHTML=`<div class="card stat"><span>Unidades vendidas</span><b>${totalUnits.toLocaleString("es-ES")}</b></div><div class="card stat"><span>Productos vendidos</span><b>${distinct}</b></div><div class="card stat"><span>Operaciones</span><b>${allFilteredSales.length.toLocaleString("es-ES")}</b></div>`;
+  if(!rows.length){chart.innerHTML='<div class="stats-empty">Todavía no hay ventas registradas para este filtro.</div>';return;}
+  const max=rows[0].quantity||1;
+  chart.innerHTML=rows.map((x,i)=>{const p=x.product;const width=Math.max(3,(x.quantity/max)*100);return `<div class="top-product-row"><div class="top-product-label"><strong>${i+1}. ${esc(p.flavor||"Producto")}</strong><span>${esc(p.category||"Sin categoría")} · ${esc(p.brand||"")}</span></div><div class="top-product-track"><div class="top-product-bar" style="width:${width}%"></div></div><div class="top-product-value">${x.quantity.toLocaleString("es-ES")}</div></div>`;}).join("");
+}
+
 function renderProductDetail(id){
   const p=state.products.find(x=>x.id===id);if(!p)return;
   const img=imageFor(p.id);
@@ -1214,7 +1275,7 @@ function renderExpenses(){
 }
 function showPage(id){
   if(!isOwner() && ["restockPage","expensesPage","employeesPage","debtsPage"].includes(id)) return;
-  ["dashboardPage","inventoryPage","salesPage","reservationsPage","restockPage","historyPage","expensesPage","warehousesPage","employeesPage","cashPage","debtsPage"].forEach(x=>$(x).classList.toggle("hidden",x!==id));
+  ["dashboardPage","inventoryPage","salesPage","statsPage","reservationsPage","restockPage","historyPage","expensesPage","warehousesPage","employeesPage","cashPage","debtsPage"].forEach(x=>$(x).classList.toggle("hidden",x!==id));
   document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));
   window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -1366,8 +1427,8 @@ document.addEventListener("click",e=>{if(!e.target.closest(".profile-wrap"))$("p
 document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
 $("dashInventory").onclick=()=>showPage("inventoryPage");
 $("searchInput").oninput=()=>render();$("historyTypeFilter")?.addEventListener("change",e=>{state.historyFilter=e.target.value;renderHistory();});$("clearHistoryFilter")?.addEventListener("click",()=>{state.historyFilter="all";renderHistory();});$("inventoryBrandFilter")?.addEventListener("change",e=>{state.inventoryFilters.brand=e.target.value;render();});$("inventoryPuffsFilter")?.addEventListener("change",e=>{state.inventoryFilters.puffs=e.target.value;render();});$("inventoryStockFilter")?.addEventListener("change",e=>{state.inventoryFilters.stock=e.target.value;render();});$("inventorySort")?.addEventListener("change",e=>{state.inventoryFilters.sort=e.target.value;render();});$("clearInventoryFilters")?.addEventListener("click",()=>{state.inventoryFilters={brand:"",puffs:"",stock:"",sort:"priceAsc"};$("searchInput").value="";render();});
-function openNewProductModal(){if(!isOwner())return;editingProductId=null;$("productForm").reset();$("pMin").value=0;$("pCurrentStock").value=0;$("pCurrentStock").disabled=false;$("pWarehouse").disabled=false;fillSelectors();$("productModalTitle").textContent="Nuevo producto";$("existingProductNotice").classList.add("hidden");$("createProductBtn").disabled=false;$("createProductBtn").textContent="Crear producto";$("productModal").classList.remove("hidden");setTimeout(()=>$("pIdentifier").focus(),50);}
-function openEditProductModal(id){if(!isOwner())return;const product=state.products.find(p=>p.id===id);if(!product)return;editingProductId=id;$("productForm").reset();fillSelectors();$("productModalTitle").textContent="Editar producto";$("pIdentifier").value=product.barcode||"";$("pBrand").value=product.brand||"";$("pPuffs").value=product.puffs??"";$("pFlavor").value=product.flavor||"";$("pPrice").value=product.price??"";$("pPurchasePrice").value=product.purchase_price??"";$("pMin").value=product.minimum_stock??0;$("pCurrentStock").value=qtyFor(product.id);$("pCurrentStock").disabled=true;$("pWarehouse").disabled=true;$("existingProductNotice").classList.add("hidden");$("createProductBtn").disabled=false;$("createProductBtn").textContent="Guardar cambios";$("productModal").classList.remove("hidden");}
+function openNewProductModal(){if(!isOwner())return;editingProductId=null;$("productForm").reset();$("pCategory").value="";$("pMin").value=0;$("pCurrentStock").value=0;$("pCurrentStock").disabled=false;$("pWarehouse").disabled=false;fillSelectors();$("productModalTitle").textContent="Nuevo producto";$("existingProductNotice").classList.add("hidden");$("createProductBtn").disabled=false;$("createProductBtn").textContent="Crear producto";$("productModal").classList.remove("hidden");setTimeout(()=>$("pIdentifier").focus(),50);}
+function openEditProductModal(id){if(!isOwner())return;const product=state.products.find(p=>p.id===id);if(!product)return;editingProductId=id;$("productForm").reset();fillSelectors();$("productModalTitle").textContent="Editar producto";$("pIdentifier").value=product.barcode||"";$("pBrand").value=product.brand||"";$("pPuffs").value=product.puffs??"";$("pFlavor").value=product.flavor||"";$("pCategory").value=product.category||"";$("pPrice").value=product.price??"";$("pPurchasePrice").value=product.purchase_price??"";$("pMin").value=product.minimum_stock??0;$("pCurrentStock").value=qtyFor(product.id);$("pCurrentStock").disabled=true;$("pWarehouse").disabled=true;$("existingProductNotice").classList.add("hidden");$("createProductBtn").disabled=false;$("createProductBtn").textContent="Guardar cambios";$("productModal").classList.remove("hidden");}
 $("newProductBtn").onclick=$("inventoryAdd").onclick=openNewProductModal;
 $("closeProductModal").onclick=()=>{$("productModal").classList.add("hidden");};
 
@@ -1971,6 +2032,10 @@ function updateMovementTotal(){
   const total=Number(product?.price||0)*qty;
   $("movementTotal").innerHTML=`<strong>${money(total)}</strong><span style="margin-left:8px;color:var(--muted)">${money(Number(product?.price||0))} × ${qty||0}</span>`;
 }
+$("statsCategoryFilter")?.addEventListener("change",()=>{state.statsCategory=$("statsCategoryFilter").value;renderStats();});
+$("statsLimit")?.addEventListener("change",()=>{state.statsLimit=Number($("statsLimit").value)||10;renderStats();});
+$("refreshStatsBtn")?.addEventListener("click",async()=>{await refreshStoreData(true);showPage("statsPage");});
+
 $("movementQty").addEventListener("input",updateMovementTotal);
 
 $("movementBtn").onclick=async()=>{
@@ -2031,7 +2096,7 @@ $("productForm").onsubmit=async e=>{
     const existing=findProductByIdentifier(identifier);
     if(existing&&existing.id!==editingProductId)throw new Error("Ese identificador ya pertenece a un producto.");
 
-    const fields={brand:$("pBrand").value.trim(),puffs:Number($("pPuffs").value),flavor:$("pFlavor").value.trim(),price:Number($("pPrice").value),purchase_price:$("pPurchasePrice").value===""?null:Number($("pPurchasePrice").value),barcode:identifier,minimum_stock:Number($("pMin").value||0)};
+    const fields={brand:$("pBrand").value.trim(),puffs:Number($("pPuffs").value),flavor:$("pFlavor").value.trim(),category:$("pCategory").value.trim()||"Sin categoría",price:Number($("pPrice").value),purchase_price:$("pPurchasePrice").value===""?null:Number($("pPurchasePrice").value),barcode:identifier,minimum_stock:Number($("pMin").value||0)};
     let productId=editingProductId;
     if(editingProductId){
       const {error}=await db.from("products").update(fields).eq("id",editingProductId).eq("store_id",state.store.id);
@@ -2049,6 +2114,8 @@ $("productForm").onsubmit=async e=>{
       productId=typeof created==="string"?created:created?.id;
       if(!productId)throw new Error("El producto se creó, pero no se recibió su identificador.");
     }
+    const categoryUpdate=await db.from("products").update({category:fields.category}).eq("id",productId).eq("store_id",state.store.id);
+    if(categoryUpdate.error)throw categoryUpdate.error;
     const file=$("pImage").files?.[0];
     if(file && productId){
       const prepared=await prepareProductImage(file);
@@ -2063,7 +2130,7 @@ $("productForm").onsubmit=async e=>{
     }
 
     $("productForm").reset();
-    $("pMin").value=0;$("pCurrentStock").value=0;editingProductId=null;
+    $("pMin").value=0;$("pCurrentStock").value=0;$("pCategory").value="";editingProductId=null;
     $("existingProductNotice").classList.add("hidden");
     $("createProductBtn").disabled=false;
     $("createProductBtn").textContent="Crear producto";
